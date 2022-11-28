@@ -22,19 +22,20 @@ contract OptionHedger is V3Swapper {
     // mainnet:
     address public DAI = 0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063;
 
-    int public slippage = 1e18;
+    int public maxSlippage = 1e18;
 
     // @dev this could be a library function 
-    function checkMinimumSlippageAmount(int amountIn, int price, int amountOut) internal view returns (bool) {
+    // @dev Check if realized slippage is < 1%
+    function checkSlippageAmount(int amountIn, int price, int amountOut) internal view returns (bool) {
         int amountOutOptimal = amountIn.mul(price);
         
-        // slippage = abs(trueAmountOut / amountOutOptimal - 1)
+        // maxSlippage= abs(trueAmountOut / amountOutOptimal - 1)
         int realizedSlippage = (amountOut.div(amountOutOptimal) - 1e18).abs();
 
         console.log("realized slippage:");
         console.logInt(realizedSlippage);
 
-        require(realizedSlippage <= slippage, "slippage too high");
+        require(realizedSlippage <= maxSlippage, "slippage too high");
 
         return true;
     }
@@ -118,8 +119,8 @@ contract OptionHedger is V3Swapper {
             // swapping
             uint amountOut = _swapExactInputSingle(tokenA, tokenB, amount_tokenA_Out);
 
-            // there is a require in checkMinimumSlippageAmount
-            require(checkMinimumSlippageAmount(int(amount_tokenA_Out), price, int(amountOut)), "checkMinimumSlippageAmount failed");
+            // there is a require in checkSlippageAmount
+            require(checkSlippageAmount(int(amount_tokenA_Out), price, int(amountOut)), "checkSlippageAmount failed");
 
             // @dev update tokenA balance, only then do swap
             storageContract.BS_Options_subA_addB(pair, user, ID, amount_tokenA_Out, amountOut);
@@ -137,8 +138,8 @@ contract OptionHedger is V3Swapper {
             // swapping
             uint amountOut = _swapExactInputSingle(tokenB, tokenA, amount_tokenB_Out);
 
-            // there is a require in checkMinimumSlippageAmount
-            require(checkMinimumSlippageAmount(int(amount_tokenB_Out), price, int(amountOut)), "checkMinimumSlippageAmount failed");
+            // there is a require in checkSlippageAmount
+            require(checkSlippageAmount(int(amount_tokenB_Out), price, int(amountOut)), "checkSlippageAmount failed");
 
             // @dev update tokenB balance, only then do swap
             storageContract.BS_Options_subB_addA(pair,user,ID,amount_tokenB_Out, amountOut);
@@ -239,8 +240,8 @@ contract OptionHedger is V3Swapper {
             // swapping
             uint amountOut = _swapExactInputSingle(tokenA, tokenB, amount_tokenA_Out);
 
-            // there is a require in checkMinimumSlippageAmount
-            require(checkMinimumSlippageAmount(int(amount_tokenA_Out), price, int(amountOut)), "checkMinimumSlippageAmount failed");
+            // there is a require in checkSlippageAmount
+            require(checkSlippageAmount(int(amount_tokenA_Out), price, int(amountOut)), "checkSlippageAmount failed");
 
             // @dev update tokenA balance, only then do swap
             storageContract.JDM_Options_subA_addB(pair, user, ID, amount_tokenA_Out, amountOut);
@@ -260,8 +261,8 @@ contract OptionHedger is V3Swapper {
             // swapping
             uint amountOut = _swapExactInputSingle(tokenB, tokenA, amount_tokenB_Out);
 
-            // there is a require in checkMinimumSlippageAmount
-            require(checkMinimumSlippageAmount(int(amount_tokenB_Out), price, int(amountOut)), "checkMinimumSlippageAmount failed");
+            // there is a require in checkSlippageAmount
+            require(checkSlippageAmount(int(amount_tokenB_Out), price, int(amountOut)), "checkSlippageAmount failed");
 
             // @dev update tokenB balance, only then do swap
             storageContract.JDM_Options_subB_addA(pair,user,ID,amount_tokenB_Out, amountOut);
