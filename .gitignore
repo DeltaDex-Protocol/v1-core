@@ -1,0 +1,8 @@
+artifacts/
+cache/
+abi/
+node_modules/
+coverage/
+.DS_Store
+
+.env
