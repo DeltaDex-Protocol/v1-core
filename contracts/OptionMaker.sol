@@ -18,24 +18,14 @@ contract OptionMaker is OptionHedger {
 
     constructor (OptionStorage _storage, BSMOptionMaker _BSM_MAKER) {
         deployer = msg.sender;
-
         storageContract = _storage;
-
-        addrBSM_MAKER = address(_BSM_MAKER);
+        addressBSMaker = address(_BSM_MAKER);
 
         BSM_MAKER = _BSM_MAKER;
     }
 
-    function transferIn(address token, uint amount) public nonReentrant onlyTrusted returns(bool success) {
-        IERC20(token).safeTransferFrom(tx.origin, address(this), amount);
-        success = true;
-        return success;
-    }
-
-    function withdraw_transfer(address tokenA, address tokenB, uint tokenA_balance, uint tokenB_balance, uint feeBalance) public nonReentrant onlyTrusted returns(bool success) {
-        IERC20(tokenA).safeTransfer(tx.origin, tokenA_balance);
-        IERC20(tokenB).safeTransfer(tx.origin, tokenB_balance);
-        IERC20(DAI).safeTransfer(tx.origin, feeBalance);
+    function transferIn(address positionOwner, address token, uint amount) public nonReentrant onlyTrusted returns (bool success) {
+        IERC20(token).safeTransferFrom(positionOwner, address(this), amount);
         success = true;
         return success;
     }
@@ -50,19 +40,53 @@ contract OptionMaker is OptionHedger {
 
     // @dev BS OptionMaker functions 
     function BS_START_REPLICATION(BS.BS_params memory _params) public returns (address pair,uint amountOut) {
-        (pair, amountOut) = BSM_MAKER.BS_START_REPLICATION(_params);
+        address positionOwner = msg.sender;
+
+        (pair, amountOut) = BSM_MAKER.BS_START_REPLICATION(_params, positionOwner);
         return (pair, amountOut);
     }
 
     // @dev require check that msg.sender is owner of position!
-    function BS_edit_params(address pair, uint ID, uint feeAmount, BS.BS_params memory _params) public nonReentrant returns (bool) {
-        bool success = BSM_MAKER.BS_edit_params(pair,ID,feeAmount,_params);
-        return success;
+    // @dev User 1 can update the params of their option replication for BS model call
+    // DAI-ETH Call replication => fee is in DAI
+    function BS_edit_params(address pair, uint ID, uint feeAmount, BS.BS_params memory _params) public nonReentrant returns (bool success) {
+        address positionOwner = msg.sender;
+
+        storageContract.BS_edit_params(pair, positionOwner, ID, _params);
+
+        if (feeAmount > 0) {
+            require(transferIn(positionOwner, DAI, feeAmount), "transfer failed");
+            storageContract.BS_addFee(pair, positionOwner, ID, feeAmount);
+        }
+        return true;
     }
     
     // @dev require check that msg.sender is owner of position!
     function BS_Withdraw(address pair, uint ID) public nonReentrant returns (bool success) {
-        success = BSM_MAKER.BS_Withdraw(pair,ID);
+        address positionOwner = msg.sender;
+
+        (address tokenA, 
+        address tokenB, 
+        uint tokenA_balance, 
+        uint tokenB_balance, 
+        uint feeBalance) = storageContract.BS_getWithdrawParams(pair, positionOwner, ID);
+
+        storageContract.BS_withdraw(pair, positionOwner, ID);
+
+        success = withdraw_transfer(positionOwner, tokenA, tokenB, tokenA_balance, tokenB_balance, feeBalance);
+
+        require(success, "transfer failed");
+
         return success;
     }
+
+
+    function withdraw_transfer(address positionOwner, address tokenA, address tokenB, uint tokenA_balance, uint tokenB_balance, uint feeBalance) internal returns (bool success) {
+        IERC20(tokenA).safeTransfer(positionOwner, tokenA_balance);
+        IERC20(tokenB).safeTransfer(positionOwner, tokenB_balance);
+        IERC20(DAI).safeTransfer(positionOwner, feeBalance);
+        success = true;
+        return success;
+    }
+
 }

@@ -28,8 +28,8 @@ contract OptionStorage is PairStorage {
         BS_Options[pair][msg.sender][ID].perDay = _params.perDay;
     }
 
-    function BS_addFee(address pair,uint ID, uint feeAmount) public onlyTrusted {
-        BS_Options[pair][tx.origin][ID].fees += feeAmount;
+    function BS_addFee(address pair, address positionOwner, uint ID, uint feeAmount) public onlyTrusted {
+        BS_Options[pair][positionOwner][ID].fees += feeAmount;
     }
 
     function BSgetHedgeAvailabilityParams(address pair, address user, uint ID) public view returns (uint perDay,uint lastHedgeTimeStamp) {
@@ -117,18 +117,18 @@ contract OptionStorage is PairStorage {
         BS_Options[pair][user][ID].tokenA_balance += addA;
     }
 
-    function BS_getWithdrawParams(address pair, address user,uint ID) public view returns (address, address, uint, uint, uint) {
-        address tokenA = BS_Options[pair][user][ID].tokenA;
-        address tokenB = BS_Options[pair][user][ID].tokenB;
+    function BS_getWithdrawParams(address pair, address user, uint ID) public view returns (address tokenA, address tokenB, uint tokenA_balance, uint tokenB_balance, uint feeBalance) {
+        tokenA = BS_Options[pair][user][ID].tokenA;
+        tokenB = BS_Options[pair][user][ID].tokenB;
 
-        uint tokenA_balance = BS_Options[pair][user][ID].tokenA_balance;
-        uint tokenB_balance = BS_Options[pair][user][ID].tokenB_balance;
-        uint feeBalance = BS_Options[pair][user][ID].fees;
+        tokenA_balance = BS_Options[pair][user][ID].tokenA_balance;
+        tokenB_balance = BS_Options[pair][user][ID].tokenB_balance;
+        feeBalance = BS_Options[pair][user][ID].fees;
 
         return (tokenA,tokenB,tokenA_balance,tokenB_balance,feeBalance);
     }
 
-    function BS_withdraw(address pair, address user,uint ID) public onlyTrusted {
+    function BS_withdraw(address pair, address user, uint ID) public onlyTrusted {
         BS_Options[pair][user][ID].tokenA_balance = 0;
         BS_Options[pair][user][ID].tokenB_balance = 0;
         BS_Options[pair][user][ID].fees = 0;

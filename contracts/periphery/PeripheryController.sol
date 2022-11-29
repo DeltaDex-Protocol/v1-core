@@ -7,7 +7,6 @@ import "contracts/dependencies/openzeppelin/IERC20.sol";
 import "contracts/storage/OptionStorage.sol";
 import "contracts/OptionMaker.sol";
 
-import "contracts/libraries/OraclePriceConverter.sol";
 import "contracts/libraries/HedgeMath.sol";
 
 contract PeripheryController {

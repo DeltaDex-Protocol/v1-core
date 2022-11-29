@@ -85,10 +85,10 @@ contract OptionHedger is V3Swapper {
         int price = int(getPrice(tokenB,tokenA));
 
         // @dev get previous delta
-        int previousDelta = HedgeMath.calculatePreviousDelta(storageContract.BS_Options_tokenB_balance(pair,user,ID),storageContract.BS_Options_amount(pair,user,ID));
+        int previousDelta = HedgeMath.calculatePreviousDelta(storageContract.BS_Options_tokenB_balance(pair, user, ID), storageContract.BS_Options_amount(pair, user, ID));
 
         // @dev update T parameter. What if block.timestamp > expiry i.e. expired contract? (add require)
-        int newTparam = HedgeMath.convertSecondstoYear(storageContract.BS_Options_expiry(pair,user,ID) - block.timestamp);
+        int newTparam = HedgeMath.convertSecondstoYear(storageContract.BS_Options_expiry(pair, user, ID) - block.timestamp);
 
         // @dev update T in mapping 
         storageContract.BS_Options_updateT(pair, user, ID, newTparam);
@@ -120,7 +120,7 @@ contract OptionHedger is V3Swapper {
             // essentially, if the change in delta if negative, dDelta is amount of tokenB to sell
             uint amount_tokenB_Out = uint(dDelta.abs().div(price).mul(int(storageContract.BS_Options_getAmount(pair, user, ID))));
 
-            require(amount_tokenB_Out<storageContract.BS_Options_getTokenB_bal(pair,user,ID), "Not enough balance to hedge, 127");
+            require(amount_tokenB_Out < storageContract.BS_Options_getTokenB_bal(pair,user,ID), "Not enough balance to hedge, 127");
 
             // swapping
             uint amountOut = _swapExactInputSingle(tokenB, tokenA, amount_tokenB_Out);
@@ -131,8 +131,6 @@ contract OptionHedger is V3Swapper {
             // @dev update tokenB balance, only then do swap
             storageContract.BS_Options_subB_addA(pair,user,ID,amount_tokenB_Out, amountOut);
         }
-
-        console.log("here");
 
         // @dev get amount to send to user 2 (there may be a way to gas optimize this..)
         payment = storageContract.BS_Options_hedgeFee(pair,user,ID);

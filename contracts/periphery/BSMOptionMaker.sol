@@ -28,25 +28,25 @@ contract BSMOptionMaker is PeripheryController {
         return delta;
     }
 
-    function BS_START_REPLICATION(BS.BS_params memory _params) public onlyCore returns (address pair,uint amountOut) {
+    function BS_START_REPLICATION(BS.BS_params memory _params, address positionOwner) public onlyCore returns (address pair,uint amountOut) {
         require(checkTokenAddress(_params.tokenB), "token not listed");
 
         // @dev get address of pair
-        pair = storageContract.getPair(_params.tokenA,_params.tokenB);
+        pair = storageContract.getPair(_params.tokenA, _params.tokenB);
 
         // @dev if pair address doesn't exist, create address of pair
         if (pair == address(0)) {
-            pair = core.createPair(_params.tokenA,_params.tokenB);
+            pair = core.createPair(_params.tokenA, _params.tokenB);
         }
 
         require(_params.fees > 0, "must deposit fee to pay for replication");
         require(_params.perDay > 0, "must hedge at least once per day");
 
         // @dev transfer fee amount in DAI
-        require(core.transferIn(DAI,_params.fees), "transfer failed");
+        require(core.transferIn(positionOwner, DAI, _params.fees), "transfer failed");
 
         // @dev get # of option positions of user
-        uint ID = storageContract.userIDlength(tx.origin);
+        uint ID = storageContract.userIDlength(positionOwner);
 
         // @dev get price of tokenB in terms of tokenA
         int price = core.getPrice(_params.tokenB,_params.tokenA);
@@ -71,7 +71,7 @@ contract BSMOptionMaker is PeripheryController {
 
             // @dev amount tokenB from user to transfer into this contract
             // @dev transfer uint _params.tokenA_balance to DeltaDex smart contract
-            require(core.transferIn(_params.tokenA,_params.tokenA_balance), "transfer failed");
+            require(core.transferIn(positionOwner, _params.tokenA,_params.tokenA_balance), "transfer failed");
 
             // @dev calculate amount tokenA to send to Uniswap v3 in exchange for tokenB
             uint amount_tokenA_Out = uint(delta.mul(int(_params.amount)).mul(price));
@@ -89,7 +89,7 @@ contract BSMOptionMaker is PeripheryController {
 
             // @dev amount tokenB from user to transfer into this contract
             // @dev transfer uint _params.tokenA_balance to DeltaDex smart contract
-            require(core.transferIn(_params.tokenB,_params.tokenB_balance), "transfer failed");
+            require(core.transferIn(positionOwner, _params.tokenB,_params.tokenB_balance), "transfer failed");
 
             // @dev calculate amount tokenA to send to Uniswap v3 in exchange for tokenB
             uint amount_tokenB_Out = uint(delta.mul(int(_params.amount)));
@@ -101,19 +101,19 @@ contract BSMOptionMaker is PeripheryController {
             _params.tokenA_balance += core.swapExactInputSingle(_params.tokenB, _params.tokenA, amount_tokenB_Out);
         }
 
-        BS_Write_Position_to_Mapping(pair, ID, _params);
+        BS_Write_Position_to_Mapping(pair, positionOwner, ID, _params);
 
         return (pair,amountOut);
     }
 
     // @dev internal function that writes params to mapping
-    function BS_Write_Position_to_Mapping(address pair, uint ID, BS.BS_params memory _params) internal returns (bool) {
+    function BS_Write_Position_to_Mapping(address pair, address positionOwner, uint ID, BS.BS_params memory _params) internal returns (bool) {
         _params.expiry = uint(HedgeMath.convertYeartoSeconds(_params.parameters.T)) + block.timestamp;
         _params.hedgeFee = uint(HedgeMath.calculatePerHedgeFee(_params.parameters.T,int(_params.fees),int(_params.perDay)));
         _params.lastHedgeTimeStamp = block.timestamp;
 
         // @dev write params in storage contract
-        storageContract.write_BS_Options(pair, tx.origin, ID, _params);
+        storageContract.write_BS_Options(pair, positionOwner, ID, _params);
 
         // @dev push ID to Positions array
         storageContract.addPairtoUserPositions(pair);
@@ -123,35 +123,6 @@ contract BSMOptionMaker is PeripheryController {
 
         return true;
     }
-
-    // @dev User 1 can update the params of their option replication for BS model call
-    // DAI-ETH Call replication => fee is in DAI
-    function BS_edit_params(address pair, uint ID, uint feeAmount, BS.BS_params memory _params) external onlyCore returns (bool) {
-
-        storageContract.BS_edit_params(pair, tx.origin, ID, _params);
-
-        if (feeAmount > 0) {
-            require(core.transferIn(DAI,feeAmount), "transfer failed");
-            storageContract.BS_addFee(pair,ID,feeAmount);
-        }
-        return true;
-    }
-
-    // @dev User 1 can stop replication and withdraw token0 and token1
-    function BS_Withdraw(address pair, uint ID) external onlyCore returns (bool success) {
-
-        (address tokenA, 
-        address tokenB, 
-        uint tokenA_balance, 
-        uint tokenB_balance, 
-        uint feeBalance) = storageContract.BS_getWithdrawParams(pair,tx.origin,ID);
-
-        storageContract.BS_withdraw(pair,tx.origin,ID);
-
-        success = core.withdraw_transfer(tokenA, tokenB, tokenA_balance, tokenB_balance, feeBalance);
-
-        return success;
-    } 
 
 
 }
