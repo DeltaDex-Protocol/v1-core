@@ -115,9 +115,6 @@ contract OptionHedger is V3Swapper {
         // maxSlippage= abs(trueAmountOut / amountOutOptimal - 1)
         int realizedSlippage = (amountOut.div(amountOutOptimal) - 1e18).abs();
 
-        console.log("realized slippage:");
-        console.logInt(realizedSlippage);
-
         require(realizedSlippage <= maxSlippage, "slippage too high");
 
         return true;
