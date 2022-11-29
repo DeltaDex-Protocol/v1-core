@@ -20,56 +20,6 @@ contract OptionHedger is V3Swapper {
 
     int public maxSlippage = 1e18;
 
-    // @dev this could be a library function 
-    // @dev Check if realized slippage is < 1%
-    function checkSlippageAmount(int amountIn, int price, int amountOut) internal view returns (bool) {
-        int amountOutOptimal = amountIn.mul(price);
-        
-        // maxSlippage= abs(trueAmountOut / amountOutOptimal - 1)
-        int realizedSlippage = (amountOut.div(amountOutOptimal) - 1e18).abs();
-
-        console.log("realized slippage:");
-        console.logInt(realizedSlippage);
-
-        require(realizedSlippage <= maxSlippage, "slippage too high");
-
-        return true;
-    }
-        
-    /// Black Scholes Model
-    function BSgetHedgeAvailability(address pair, address user, uint ID) public view returns (bool isHedgeable) {
-        // @dev calculate interval in seconds between hedges 
-        (uint perDay, uint lastHedgeTimeStamp) = storageContract.BSgetHedgeAvailabilityParams(pair, user,ID);
-        // @dev calculate interval in seconds between hedges 
-        uint interval = HedgeMath.getTimeStampInterval(perDay);
-        // @dev calculate time in seconds since last hedge
-        uint current_interval = block.timestamp - lastHedgeTimeStamp;
-
-        if (current_interval >= interval) {
-            isHedgeable = true;
-        } else {
-            isHedgeable = false;
-        }
-    }
-
-    // @dev get delta of call if isCall is true, else get delta of put
-    function BSgetDelta(int price, address pair, address user, uint ID) internal view returns (int delta) {
-        // @dev create in memory MertonInput struct as input 
-        BS.BlackScholesInput memory input;
-
-        bool isCall;
-        input.S = price;
-
-        (input.K, input.T, input.r, input.sigma, isCall) = storageContract.BS_getDeltaParams(pair, user, ID);
-
-        if(isCall) {
-            delta = BS.delta_BS_CALL(input);
-        }
-        else {
-            delta = BS.delta_BS_PUT(input);
-        }
-        return delta;
-    }
 
     // @dev User 2 can read params, recalculate delta, and hedge the position 
     // @dev needs to be tested with manual input of delta
@@ -139,5 +89,59 @@ contract OptionHedger is V3Swapper {
         // make payment 
         IERC20(DAI).safeTransfer(msg.sender, payment);
         return payment;
+    }
+
+         
+    /// Black Scholes Model
+    function BSgetHedgeAvailability(address pair, address user, uint ID) public view returns (bool isHedgeable) {
+        // @dev calculate interval in seconds between hedges 
+        (uint perDay, uint lastHedgeTimeStamp) = storageContract.BSgetHedgeAvailabilityParams(pair, user,ID);
+        // @dev calculate interval in seconds between hedges 
+        uint interval = HedgeMath.getTimeStampInterval(perDay);
+        // @dev calculate time in seconds since last hedge
+        uint current_interval = block.timestamp - lastHedgeTimeStamp;
+
+        if (current_interval >= interval) {
+            isHedgeable = true;
+        } else {
+            isHedgeable = false;
+        }
+    }
+
+
+    // @dev this could be a library function 
+    // @dev Check if realized slippage is < 1%
+    function checkSlippageAmount(int amountIn, int price, int amountOut) internal view returns (bool) {
+        int amountOutOptimal = amountIn.mul(price);
+        
+        // maxSlippage= abs(trueAmountOut / amountOutOptimal - 1)
+        int realizedSlippage = (amountOut.div(amountOutOptimal) - 1e18).abs();
+
+        console.log("realized slippage:");
+        console.logInt(realizedSlippage);
+
+        require(realizedSlippage <= maxSlippage, "slippage too high");
+
+        return true;
+    }
+
+
+    // @dev get delta of call if isCall is true, else get delta of put
+    function BSgetDelta(int price, address pair, address user, uint ID) internal view returns (int delta) {
+        // @dev create in memory MertonInput struct as input 
+        BS.BlackScholesInput memory input;
+
+        bool isCall;
+        input.S = price;
+
+        (input.K, input.T, input.r, input.sigma, isCall) = storageContract.BS_getDeltaParams(pair, user, ID);
+
+        if(isCall) {
+            delta = BS.delta_BS_CALL(input);
+        }
+        else {
+            delta = BS.delta_BS_PUT(input);
+        }
+        return delta;
     }
 }

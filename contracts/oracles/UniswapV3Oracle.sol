@@ -22,17 +22,6 @@ contract UniswapV3twap {
         return price;
     }
 
-    // @dev gets pool address of token pair on uniswap v3
-    function getPool(address token0, address token1, uint24 fee) internal view returns (address) {
-        address pool = IUniswapV3Factory(_factory).getPool(
-            token0,
-            token1,
-            fee
-        );
-        require(pool != address(0), "pool doesn't exist");
-        return pool;
-    }
-
     // @dev gets price of tokenIn in terms of tokenOut
     function estimateAmountOut(
         address tokenIn,
@@ -68,4 +57,16 @@ contract UniswapV3twap {
             tokenOut
         );
     }
+
+    // @dev gets pool address of token pair on uniswap v3
+    function getPool(address token0, address token1, uint24 fee) internal view returns (address) {
+        address pool = IUniswapV3Factory(_factory).getPool(
+            token0,
+            token1,
+            fee
+        );
+        require(pool != address(0), "pool doesn't exist");
+        return pool;
+    }
+
 }

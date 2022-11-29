@@ -17,17 +17,6 @@ contract BSMOptionMaker is PeripheryController {
 
     constructor () PeripheryController(msg.sender) {}
 
-    // @dev get delta of call if isCall is true, else get delta of put
-    function getDelta(bool isCall, BS.BlackScholesInput memory input) internal pure returns (int delta) {
-        if(isCall) {
-            delta = BS.delta_BS_CALL(input).abs();
-        }
-        else {
-            delta = BS.delta_BS_PUT(input).abs();
-        }
-        return delta;
-    }
-
     function BS_START_REPLICATION(BS.BS_params memory _params, address positionOwner) public onlyCore returns (address pair,uint amountOut) {
         require(checkTokenAddress(_params.tokenB), "token not listed");
 
@@ -123,4 +112,16 @@ contract BSMOptionMaker is PeripheryController {
 
         return true;
     }
+
+    // @dev get delta of call if isCall is true, else get delta of put
+    function getDelta(bool isCall, BS.BlackScholesInput memory input) internal pure returns (int delta) {
+        if(isCall) {
+            delta = BS.delta_BS_CALL(input).abs();
+        }
+        else {
+            delta = BS.delta_BS_PUT(input).abs();
+        }
+        return delta;
+    }
+
 }
