@@ -1,15 +1,15 @@
+// Copyright 2022 DeltaDex
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+import "contracts/periphery/BSMOptionMaker.sol";
+
 import "./OptionHedger.sol";
 
-import "contracts/periphery/BSMOptionMaker.sol";
-    
 /// @title OptionMaker
 /// @author DeltaDex
 /// @notice This contract contains the main logic for initializing option replication positions
 /// @dev using delegatecall to run logic of BSOptionMaker and JDMOptionMaker
-
 contract OptionMaker is OptionHedger {
     using SafeERC20 for IERC20;
 
@@ -31,15 +31,15 @@ contract OptionMaker is OptionHedger {
     }
 
     function createPair(address tokenA, address tokenB) public onlyTrusted returns (address pair) {
-        return _createPair(tokenA,tokenB);
+        return _createPair(tokenA, tokenB);
     }
 
     function swapExactInputSingle(address token0, address token1, uint amountIn) public onlyTrusted returns (uint amountOut) {
         return _swapExactInputSingle(token0, token1, amountIn);
     }
 
-    // @dev BS OptionMaker functions 
-    function BS_START_REPLICATION(BS.BS_params memory _params) public returns (address pair,uint amountOut) {
+    // @dev BS OptionMaker functions
+    function BS_START_REPLICATION(BS.BS_params memory _params) public returns (address pair, uint amountOut) {
         address positionOwner = msg.sender;
 
         (pair, amountOut) = BSM_MAKER.BS_START_REPLICATION(_params, positionOwner);
@@ -60,15 +60,16 @@ contract OptionMaker is OptionHedger {
         }
         return true;
     }
-    
+
+
     // @dev require check that msg.sender is owner of position!
     function BS_Withdraw(address pair, uint ID) public nonReentrant returns (bool success) {
         address positionOwner = msg.sender;
 
-        (address tokenA, 
-        address tokenB, 
-        uint tokenA_balance, 
-        uint tokenB_balance, 
+        (address tokenA,
+        address tokenB,
+        uint tokenA_balance,
+        uint tokenB_balance,
         uint feeBalance) = storageContract.BS_getWithdrawParams(pair, positionOwner, ID);
 
         storageContract.BS_withdraw(pair, positionOwner, ID);
@@ -88,5 +89,4 @@ contract OptionMaker is OptionHedger {
         success = true;
         return success;
     }
-
 }

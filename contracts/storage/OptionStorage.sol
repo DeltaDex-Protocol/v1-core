@@ -1,24 +1,22 @@
+// Copyright 2022 DeltaDex
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-// @dev libraries
 import "contracts/libraries/BlackScholesModel.sol";
 
 import "./PairStorage.sol";
 
 contract OptionStorage is PairStorage {
-
-    // @dev BS Calls & Puts 
-    // address TokenPair => address user => positinoID => position 
+    // @dev BS Calls & Puts
+    // address TokenPair => address user => positinoID => position
     mapping(address => mapping(address => mapping(uint => BS.BS_params))) public BS_Options;
-
 
     // Black Scholes Merton Model
     function write_BS_Options(address pair, address user, uint ID, BS.BS_params memory _params) public onlyTrusted {
         BS_Options[pair][user][ID] = _params;
     }
 
-    function BS_edit_params(address pair, address user,uint ID, BS.BS_params memory _params) public onlyTrusted {
+    function BS_edit_params(address pair, address user, uint ID, BS.BS_params memory _params) public onlyTrusted {
         // @dev nested struct params
         BS_Options[pair][user][ID].parameters.K = _params.parameters.K;
         BS_Options[pair][user][ID].parameters.T = _params.parameters.T;
@@ -32,7 +30,7 @@ contract OptionStorage is PairStorage {
         BS_Options[pair][positionOwner][ID].fees += feeAmount;
     }
 
-    function BSgetHedgeAvailabilityParams(address pair, address user, uint ID) public view returns (uint perDay,uint lastHedgeTimeStamp) {
+    function BSgetHedgeAvailabilityParams(address pair, address user, uint ID) public view returns (uint perDay, uint lastHedgeTimeStamp) {
         perDay = BS_Options[pair][user][ID].perDay;
         lastHedgeTimeStamp = BS_Options[pair][user][ID].lastHedgeTimeStamp;
 
@@ -48,12 +46,12 @@ contract OptionStorage is PairStorage {
         return (K , T, r, sigma, isCall);
     }
 
-    function BS_PositionParams(address pair, address user, uint ID) public view returns (uint amount, uint expiry, uint fees, uint perDay, uint hedgeFee, uint lastHedgeTimeStamp){
+    function BS_PositionParams(address pair, address user, uint ID) public view returns (uint amount, uint expiry, uint fees, uint perDay, uint hedgeFee, uint lastHedgeTimeStamp) {
         amount = BS_Options[pair][user][ID].amount;
-        expiry= BS_Options[pair][user][ID].expiry;
+        expiry = BS_Options[pair][user][ID].expiry;
         fees = BS_Options[pair][user][ID].fees;
         perDay = BS_Options[pair][user][ID].perDay;
-        hedgeFee= BS_Options[pair][user][ID].hedgeFee;
+        hedgeFee = BS_Options[pair][user][ID].hedgeFee;
         lastHedgeTimeStamp = BS_Options[pair][user][ID].lastHedgeTimeStamp;
         return (amount, expiry, fees, perDay, hedgeFee, lastHedgeTimeStamp);
     }
@@ -73,7 +71,7 @@ contract OptionStorage is PairStorage {
         amount = BS_Options[pair][user][ID].amount;
         return amount;
     }
-    
+
     function BS_Options_expiry(address pair, address user, uint ID) public view returns (uint expiry) {
         expiry = BS_Options[pair][user][ID].expiry;
         return expiry;
@@ -125,7 +123,7 @@ contract OptionStorage is PairStorage {
         tokenB_balance = BS_Options[pair][user][ID].tokenB_balance;
         feeBalance = BS_Options[pair][user][ID].fees;
 
-        return (tokenA,tokenB,tokenA_balance,tokenB_balance,feeBalance);
+        return (tokenA, tokenB, tokenA_balance, tokenB_balance, feeBalance);
     }
 
     function BS_withdraw(address pair, address user, uint ID) public onlyTrusted {
@@ -134,7 +132,7 @@ contract OptionStorage is PairStorage {
         BS_Options[pair][user][ID].fees = 0;
     }
 
-    function BS_hedge(address pair, address user,uint ID, uint tokenA_balance, uint tokenB_balance, uint fees) public onlyTrusted {
+    function BS_hedge(address pair, address user, uint ID, uint tokenA_balance, uint tokenB_balance, uint fees) public onlyTrusted {
         BS_Options[pair][user][ID].tokenA_balance = tokenA_balance;
         BS_Options[pair][user][ID].tokenB_balance = tokenB_balance;
         BS_Options[pair][user][ID].fees = fees;

@@ -1,10 +1,11 @@
+// Copyright 2022 DeltaDex
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
 import "./StorageController.sol";
 
 contract PairStorage is StorageController {
-
+    // @dev currently not in use
     struct Pair {
         address tokenA;
         uint tokenA_balance;
@@ -34,7 +35,7 @@ contract PairStorage is StorageController {
     mapping(address => address[]) public PairUsers;
 
     // address user => array of IDs
-    mapping(address => address[]) public Positions;   
+    mapping(address => address[]) public Positions;
 
     // @dev returns number of all pairs in contract
     function numOfPairs() public view returns (uint) {
@@ -67,7 +68,7 @@ contract PairStorage is StorageController {
     }
 
     // @dev return all addresses of users in token pair
-    // @dev currently only called 
+    // @dev currently only called
     function getUserAddressesInPair(address pair) external view returns (address[] memory) {
         return PairUsers[pair];
     }
@@ -78,7 +79,7 @@ contract PairStorage is StorageController {
         return user;
     }
 
-    // @dev link address token pair to user address 
+    // @dev link address token pair to user address
     function addPairtoUserPositions(address positionOwner, address pair) public onlyTrusted {
         Positions[positionOwner].push(pair);
     }

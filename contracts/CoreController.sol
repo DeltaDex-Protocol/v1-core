@@ -1,3 +1,4 @@
+// Copyright 2022 DeltaDex
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
@@ -6,7 +7,6 @@ import "contracts/dependencies/openzeppelin/ReentrancyGuard.sol";
 import "contracts/storage/OptionStorage.sol";
 
 contract CoreController is ReentrancyGuard {
-
     // deployer
     address public deployer;
 
