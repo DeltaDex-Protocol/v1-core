@@ -3,7 +3,6 @@
 pragma solidity ^0.8.17;
 
 contract StorageController {
-
     address public deployer;
 
     // core
@@ -42,6 +41,5 @@ contract StorageController {
 
     function setPeripheryAddr(address _BSM_MAKER) public onlyDeployer {
         BSM_MAKER = _BSM_MAKER;
-
     }
 }
