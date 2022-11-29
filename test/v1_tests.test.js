@@ -22,7 +22,6 @@ describe("Multiple User Replication", () => {
   let Statslib;
   let HedgeMathlib;
   let BSlib;
-  let JDMlib;
 
   // main
   let optionmaker;
@@ -32,7 +31,6 @@ describe("Multiple User Replication", () => {
 
   // periphery
   let bsoptionmaker;
-  let jdmoptionmaker;
 
   before(async () => {
     await network.provider.request({
@@ -75,18 +73,6 @@ describe("Multiple User Replication", () => {
     });
     BSlib = await BS.deploy();
     await BSlib.deployed();
-
-    // @dev deploy JDM model library
-    const JDM = await ethers.getContractFactory("JDM", {
-      signer: signers[0],
-      libraries: {
-        Statistics: Statslib.address,
-      },
-    });
-    JDMlib = await JDM.deploy();
-    await JDMlib.deployed();
-    console.log("JDM library:", JDMlib.address);
-
   });
 
   it("Should deploy storage", async () => {
@@ -113,18 +99,6 @@ describe("Multiple User Replication", () => {
     await bsoptionmaker.deployed();
 
     console.log("periphery:", bsoptionmaker.address);
-
-    const JDMOptionMaker = await ethers.getContractFactory("JDMOptionMaker", {
-      signer: signers[0],
-      libraries: {
-        JDM: JDMlib.address,
-        HedgeMath: HedgeMathlib.address,
-      },
-    });
-    jdmoptionmaker = await JDMOptionMaker.deploy();
-    await jdmoptionmaker.deployed();
-
-    console.log("periphery:", jdmoptionmaker.address);
   });
 
   it("Should deploy main", async () => {
@@ -133,14 +107,12 @@ describe("Multiple User Replication", () => {
       signer: signers[0],
       libraries: {
         BS: BSlib.address,
-        JDM: JDMlib.address,
         HedgeMath: HedgeMathlib.address,
       },
     });
     optionmaker = await OptionMaker.deploy(
       optionstorage.address,
-      bsoptionmaker.address,
-      jdmoptionmaker.address,
+      bsoptionmaker.address
     );
     await optionmaker.deployed();
 
@@ -156,8 +128,7 @@ describe("Multiple User Replication", () => {
     let tx1 = await optionstorage
       .connect(accounts[0])
       .setPeripheryAddr(
-        bsoptionmaker.address,
-        jdmoptionmaker.address,
+        bsoptionmaker.address
       );
     tx1.wait();
   });
@@ -175,22 +146,6 @@ describe("Multiple User Replication", () => {
 
     let coreAddr = await bsoptionmaker.connect(accounts[0]).getCoreAddr();
     console.log("core addr: ", coreAddr);
-
-    // jdm
-    await jdmoptionmaker
-      .connect(accounts[0])
-      .setStorageAddr(optionstorage.address);
-
-    let storageAddr1 = await jdmoptionmaker
-      .connect(accounts[0])
-      .getStorageAddr();
-    console.log("storage addr: ", storageAddr1);
-
-    await jdmoptionmaker.connect(accounts[0]).setCoreAddr(optionmaker.address);
-
-    let coreAddr1 = await jdmoptionmaker.connect(accounts[0]).getCoreAddr();
-    console.log("core addr: ", coreAddr1);
-
   });
 
   it("Should unlock dai", async () => {
@@ -347,122 +302,8 @@ describe("Multiple User Replication", () => {
   });
 
 
-  it("Position 1: JDM Call replication: ", async () => {
-    // input to JDM start replication
-    let tokenA_balance = "5000";
-    let amount = "1";
-    let fee = "400";
-    let perDay = "8";
-    let K = "1250";
-    let T = "0.3";
-    let r = "0.15";
-    let sigma = "0.8";
-    let m = "1";
-    let v = "0.8";
-    let lam = "0.7";
-
-    tokenA_balance = ethers.utils.parseUnits(tokenA_balance);
-    amount = ethers.utils.parseUnits(amount);
-    fee = ethers.utils.parseUnits(fee);
-
-    perDay = ethers.utils.parseUnits(perDay, "wei");
-
-    K = ethers.utils.parseUnits(K);
-    T = ethers.utils.parseUnits(T);
-    r = ethers.utils.parseUnits(r);
-    sigma = ethers.utils.parseUnits(sigma);
-    m = ethers.utils.parseUnits(m);
-    v = ethers.utils.parseUnits(v);
-    lam = ethers.utils.parseUnits(lam);
-
-    const input = [
-      DAI,
-      WETH,
-      tokenA_balance,
-      0,
-      true,
-      true,
-      amount,
-      0,
-      fee,
-      perDay,
-      0,
-      0,
-      [K, T, r, sigma, m, v, lam],
-    ];
-
-    const tx = await optionmaker
-      .connect(accounts[0])
-      .JDM_START_REPLICATION(input);
-    // wait until the transaction is mined
-    await tx.wait();
-
-    const pair = await optionstorage.getPair(DAI, WETH);
-    console.log("address of pair:", pair);
-
-    expect(await optionstorage.getPairUserAddress(pair, 0)).to.equal(
-      accounts[0].address
-    );
-  });
-
-  it("Position 2: JDM Put replication: ", async () => {
-    // input to JDM start replication
-    let tokenB_balance = "4";
-    let amount = "1";
-    let fee = "500";
-    let perDay = "9";
-    let K = "2000";
-    let T = "0.5";
-    let r = "0.11";
-    let sigma = "0.95";
-    let m = "1.1";
-    let v = "1.2";
-    let lam = "0.9";
-
-    tokenB_balance = ethers.utils.parseUnits(tokenB_balance);
-    amount = ethers.utils.parseUnits(amount);
-    fee = ethers.utils.parseUnits(fee);
-    perDay = ethers.utils.parseUnits(perDay, "wei");
-    K = ethers.utils.parseUnits(K);
-    T = ethers.utils.parseUnits(T);
-    r = ethers.utils.parseUnits(r);
-    sigma = ethers.utils.parseUnits(sigma);
-    m = ethers.utils.parseUnits(m);
-    v = ethers.utils.parseUnits(v);
-    lam = ethers.utils.parseUnits(lam);
-
-    const input = [
-      DAI,
-      WETH,
-      0,
-      tokenB_balance,
-      false,
-      true,
-      amount,
-      0,
-      fee,
-      perDay,
-      0,
-      0,
-      [K, T, r, sigma, m, v, lam],
-    ];
-
-    const tx = await optionmaker
-      .connect(accounts[0])
-      .JDM_START_REPLICATION(input);
-    // wait until the transaction is mined
-    await tx.wait();
-
-    const pair = await optionstorage.getPair(DAI, WETH);
-    console.log("address of pair:", pair);
-
-    expect(await optionstorage.getPairUserAddress(pair, 0)).to.equal(
-      accounts[0].address
-    );
-  });
-
   it("Should get the number of positions of user: ", async () => {
-    expect(await optionstorage.userIDlength(accounts[0].address)).to.equal(4);
+    expect(await optionstorage.userIDlength(accounts[0].address)).to.equal(2);
 
     const positions = await optionstorage.userIDlength(accounts[0].address);
 
@@ -530,54 +371,6 @@ describe("Multiple User Replication", () => {
     let bs_option = await optionstorage.BS_Options(pair, user, 0);
 
     let hedgeFee = ethers.BigNumber.from(bs_option.hedgeFee);
-
-    console.log("hedge fee DAI", hedgeFee);
-
-    let daiBalance = await dai.balanceOf(accounts[1].address);
-
-    daiBalance = ethers.BigNumber.from(daiBalance);
-    console.log("paid fee DAI", daiBalance);
-  });
-
-  it("Hedge JDM Call: ", async () => {
-    const pair = await optionstorage.getPair(DAI, WETH);
-
-    const user = await optionstorage.getPairUserAddress(pair, 0);
-    console.log("user in hedge func", user);
-
-    const tx = await optionmaker.connect(accounts[1]).JDM_HEDGE(pair, user, 2, {
-      gasLimit: 2000000,
-    });
-
-    await tx.wait();
-
-    let jdm_option = await optionstorage.JDM_Options(pair, user, 0);
-
-    let hedgeFee = ethers.BigNumber.from(jdm_option.hedgeFee);
-
-    console.log("hedge fee DAI", hedgeFee);
-
-    let daiBalance = await dai.balanceOf(accounts[1].address);
-
-    daiBalance = ethers.BigNumber.from(daiBalance);
-    console.log("paid fee DAI", daiBalance);
-  });
-
-  it("Hedge JDM Put: ", async () => {
-    const pair = await optionstorage.getPair(DAI, WETH);
-
-    const user = await optionstorage.getPairUserAddress(pair, 0);
-    console.log("user in hedge func", user);
-
-    const tx = await optionmaker.connect(accounts[1]).JDM_HEDGE(pair, user, 3, {
-      gasLimit: 2000000,
-    });
-
-    await tx.wait();
-
-    let jdm_option = await optionstorage.JDM_Options(pair, user, 0);
-
-    let hedgeFee = ethers.BigNumber.from(jdm_option.hedgeFee);
 
     console.log("hedge fee DAI", hedgeFee);
 
