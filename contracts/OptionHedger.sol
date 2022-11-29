@@ -37,9 +37,9 @@ contract OptionHedger is V3Swapper {
     }
         
     /// Black Scholes Model
-    function BSgetHedgeAvailability(address pair,address user, uint ID) public view returns (bool isHedgeable) {
+    function BSgetHedgeAvailability(address pair, address user, uint ID) public view returns (bool isHedgeable) {
         // @dev calculate interval in seconds between hedges 
-        (uint perDay, uint lastHedgeTimeStamp) = storageContract.BSgetHedgeAvailabilityParams(pair,user,ID);
+        (uint perDay, uint lastHedgeTimeStamp) = storageContract.BSgetHedgeAvailabilityParams(pair, user,ID);
         // @dev calculate interval in seconds between hedges 
         uint interval = HedgeMath.getTimeStampInterval(perDay);
         // @dev calculate time in seconds since last hedge

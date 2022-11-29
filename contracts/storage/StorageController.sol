@@ -6,15 +6,14 @@ contract StorageController {
     address public deployer;
 
     // core
-    address CORE;
+    address public CORE;
 
     // periphery
     address public BSM_MAKER;
 
-
     modifier onlyDeployer {
         address msgSender = msg.sender;
-        require(msg.sender == deployer, "not owner");
+        require(msg.sender == deployer, "not deployer");
         _;
     }
 

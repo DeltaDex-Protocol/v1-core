@@ -25,23 +25,6 @@ contract PeripheryController {
 
     mapping(address => address) public availablePairs;
 
-    function initAvailablePairs() internal {
-        availablePairs[WBTC] = DAI;
-        availablePairs[WETH] = DAI;
-        availablePairs[UNI] = DAI;
-    }
-
-    function checkTokenAddress(address token) internal view returns (bool) {
-        if (availablePairs[token] == DAI) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-
-
     constructor(address _deployer) {
         deployer = _deployer;
         initAvailablePairs();
@@ -59,6 +42,21 @@ contract PeripheryController {
         _;
     }
 
+    function initAvailablePairs() internal {
+        availablePairs[WBTC] = DAI;
+        availablePairs[WETH] = DAI;
+        availablePairs[UNI] = DAI;
+    }
+
+    function checkTokenAddress(address token) internal view returns (bool) {
+        if (availablePairs[token] == DAI) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
     function setStorageAddr(OptionStorage _storage) public onlyDeployer {
         storageContract = _storage;
     }
@@ -74,5 +72,4 @@ contract PeripheryController {
     function getCoreAddr() public view returns (address) {
         return address(core);
     }
-
 }

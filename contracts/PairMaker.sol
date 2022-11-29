@@ -12,10 +12,10 @@ import "contracts/storage/OptionStorage.sol";
 contract PairMaker is CoreController {
     // @dev creates pair if it doesn't already exist
     function _createPair(address tokenA, address tokenB) internal returns (address pair) {
-        require(tokenA != tokenB, 'DeltaDex: IDENTICAL_ADDRESSES');
+        require(tokenA != tokenB, "DeltaDex: IDENTICAL_ADDRESSES");
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
-        require(token0 != address(0), 'DeltaDex: ZERO_ADDRESS');
-        require(storageContract.getPair(token0, token1) == address(0), 'DeltaDex: PAIR_EXISTS'); // single check is sufficient
+        require(token0 != address(0), "DeltaDex: ZERO_ADDRESS");
+        require(storageContract.getPair(token0, token1) == address(0), "DeltaDex: PAIR_EXISTS"); // single check is sufficient
 
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
         pair = address(uint160(bytes20(salt)));

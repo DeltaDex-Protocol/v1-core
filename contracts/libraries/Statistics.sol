@@ -12,14 +12,14 @@ import "../dependencies/prb-math/PRBMathSD59x18.sol";
 library Statistics {
     using PRBMathSD59x18 for int256;
 
-    int constant a1 = 254829592000000000;
-    int constant a2 = -284496736000000000;
-    int constant a3 = 1421413741000000000;
-    int constant a4 = -1453152027000000000;
-    int constant a5 = 1061405429000000000;
-    int constant p = 327591100000000000;
+    int internal constant a1 = 254829592000000000;
+    int internal constant a2 = -284496736000000000;
+    int internal constant a3 = 1421413741000000000;
+    int internal constant a4 = -1453152027000000000;
+    int internal constant a5 = 1061405429000000000;
+    int internal constant p = 327591100000000000;
 
-    int constant SQRT_2 = 1414213562373095100;
+    int internal constant SQRT_2 = 1414213562373095100;
 
     // @dev probability density function
     // another way to calculate => (1/(math.sqrt(2*math.pi))) * math.e**(-1**2 / 2)

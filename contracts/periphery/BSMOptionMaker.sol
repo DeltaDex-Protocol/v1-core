@@ -109,20 +109,18 @@ contract BSMOptionMaker is PeripheryController {
     // @dev internal function that writes params to mapping
     function BS_Write_Position_to_Mapping(address pair, address positionOwner, uint ID, BS.BS_params memory _params) internal returns (bool) {
         _params.expiry = uint(HedgeMath.convertYeartoSeconds(_params.parameters.T)) + block.timestamp;
-        _params.hedgeFee = uint(HedgeMath.calculatePerHedgeFee(_params.parameters.T,int(_params.fees),int(_params.perDay)));
+        _params.hedgeFee = uint(HedgeMath.calculatePerHedgeFee(_params.parameters.T, int(_params.fees), int(_params.perDay)));
         _params.lastHedgeTimeStamp = block.timestamp;
 
         // @dev write params in storage contract
         storageContract.write_BS_Options(pair, positionOwner, ID, _params);
 
         // @dev push ID to Positions array
-        storageContract.addPairtoUserPositions(pair);
+        storageContract.addPairtoUserPositions(positionOwner, pair);
 
         // @dev push address user to PairUsers array
-        storageContract.addPairUser(pair);
+        storageContract.addPairUser(positionOwner, pair);
 
         return true;
     }
-
-
 }
