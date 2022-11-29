@@ -14,7 +14,7 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: `https://polygon-rpc.com`,
+        url: `https://polygon-bor.publicnode.com`,
       },
     },
     rinkeby: {

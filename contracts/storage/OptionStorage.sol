@@ -45,7 +45,7 @@ contract OptionStorage is PairStorage {
         r = BS_Options[pair][user][ID].parameters.r;
         sigma = BS_Options[pair][user][ID].parameters.sigma;
         isCall = BS_Options[pair][user][ID].isCall;
-        return (K,T,r,sigma,isCall);
+        return (K , T, r, sigma, isCall);
     }
 
     function BS_PositionParams(address pair, address user, uint ID) public view returns (uint amount, uint expiry, uint fees, uint perDay, uint hedgeFee, uint lastHedgeTimeStamp){

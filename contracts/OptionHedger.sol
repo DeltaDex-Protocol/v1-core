@@ -16,9 +16,6 @@ contract OptionHedger is V3Swapper {
     using PRBMathSD59x18 for int256;
     using SafeERC20 for IERC20;
 
-    // testnet: 
-    // address public DAI = 0xE6937ab8cc964D616DeD01225a208a732f0dBF47;
-    // mainnet:
     address public DAI = 0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063;
 
     int public maxSlippage = 1e18;
@@ -82,9 +79,6 @@ contract OptionHedger is V3Swapper {
         require(isHedgeable==true, "Can't hedge option yet");
 
         storageContract.BS_Options_updateTimeStamp(pair, user, ID, block.timestamp);
-
-        console.log("isHedgeable");
-        console.log(isHedgeable);
         
         (address tokenA, address tokenB) = storageContract.BS_tokenAddr(pair,user,ID);
 
@@ -110,9 +104,6 @@ contract OptionHedger is V3Swapper {
             // buy amount dDelta (change in delta * price * amount of contracts = amount of tokenA to sell)
             uint amount_tokenA_Out = uint(dDelta.mul(price).mul(int(storageContract.BS_Options_getAmount(pair, user, ID))));
 
-            console.log("amount_tokenA_Out");
-            console.logUint(amount_tokenA_Out);
-
             require(amount_tokenA_Out<storageContract.BS_Options_getTokenA_bal(pair, user, ID), "Not enough balance to hedge, 108");
 
             // swapping
@@ -128,9 +119,6 @@ contract OptionHedger is V3Swapper {
             // sell amount dDelta
             // essentially, if the change in delta if negative, dDelta is amount of tokenB to sell
             uint amount_tokenB_Out = uint(dDelta.abs().div(price).mul(int(storageContract.BS_Options_getAmount(pair, user, ID))));
-
-            console.log("amount_tokenB_Out");
-            console.logUint(amount_tokenB_Out);
 
             require(amount_tokenB_Out<storageContract.BS_Options_getTokenB_bal(pair,user,ID), "Not enough balance to hedge, 127");
 
