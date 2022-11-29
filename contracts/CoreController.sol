@@ -15,7 +15,6 @@ contract CoreController is ReentrancyGuard {
 
     // periphery
     address public addrBSM_MAKER;
-    address public addrJDM_MAKER;
 
     modifier onlyDeployer {
         address msgSender = msg.sender;
@@ -25,7 +24,7 @@ contract CoreController is ReentrancyGuard {
 
     modifier onlyTrusted {
         address sender = msg.sender;
-        require(sender == address(addrBSM_MAKER) || sender == address(addrJDM_MAKER), "not trusted");
+        require(sender == address(addrBSM_MAKER), "not trusted");
         _;
     }
 
@@ -33,7 +32,7 @@ contract CoreController is ReentrancyGuard {
         return address(storageContract);
     }
 
-    function getPeripheryAddr() public view returns (address,address) {
-        return (address(addrBSM_MAKER),address(addrJDM_MAKER));
+    function getPeripheryAddr() public view returns (address) {
+        return (address(addrBSM_MAKER));
     }
 }

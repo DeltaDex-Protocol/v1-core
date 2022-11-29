@@ -4,7 +4,6 @@ pragma solidity ^0.8.17;
 import "./OptionHedger.sol";
 
 import "contracts/periphery/BSMOptionMaker.sol";
-import "contracts/periphery/JDMOptionMaker.sol";
     
 /// @title OptionMaker
 /// @author DeltaDex
@@ -16,18 +15,15 @@ contract OptionMaker is OptionHedger {
 
     // periphery
     BSMOptionMaker public BSM_MAKER;
-    JDMOptionMaker public JDM_MAKER;
 
-    constructor (OptionStorage _storage, BSMOptionMaker _BSM_MAKER, JDMOptionMaker _JDM_MAKER) {
+    constructor (OptionStorage _storage, BSMOptionMaker _BSM_MAKER) {
         deployer = msg.sender;
 
         storageContract = _storage;
 
         addrBSM_MAKER = address(_BSM_MAKER);
-        addrJDM_MAKER = address(_JDM_MAKER);
 
         BSM_MAKER = _BSM_MAKER;
-        JDM_MAKER = _JDM_MAKER;
     }
 
     function transferIn(address token, uint amount) public nonReentrant onlyTrusted returns(bool success) {
@@ -67,25 +63,6 @@ contract OptionMaker is OptionHedger {
     // @dev require check that msg.sender is owner of position!
     function BS_Withdraw(address pair, uint ID) public nonReentrant returns (bool success) {
         success = BSM_MAKER.BS_Withdraw(pair,ID);
-        return success;
-    }
-
-    // @dev JDM OptionMaker functions
-    // this needs to be non-reentrant... 
-    function JDM_START_REPLICATION(JDM.JDM_params memory _params) public returns (address pair,uint amountOut) {
-        (pair, amountOut) = JDM_MAKER.JDM_START_REPLICATION(_params);
-        return (pair, amountOut);
-    }
-
-    // @dev require check that msg.sender is owner of position!
-    function JDM_edit_params(address pair, uint ID, uint feeAmount, JDM.JDM_params memory _params) public nonReentrant returns (bool) {
-        bool success = JDM_MAKER.JDM_edit_params(pair,ID,feeAmount,_params);
-        return success;
-    }
-
-    // @dev require check that msg.sender is owner of position!
-    function JDM_Withdraw(address pair, uint ID) public returns (bool success) {
-        success = JDM_MAKER.JDM_Withdraw(pair,ID);
         return success;
     }
 }
