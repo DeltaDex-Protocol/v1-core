@@ -156,6 +156,9 @@ contract OptionStorage is PairStorage {
         JDM_Options[pair][user][ID].parameters.T = _params.parameters.T;
         JDM_Options[pair][user][ID].parameters.r = _params.parameters.r;
         JDM_Options[pair][user][ID].parameters.sigma = _params.parameters.sigma;
+        JDM_Options[pair][user][ID].parameters.m = _params.parameters.m;
+        JDM_Options[pair][user][ID].parameters.v = _params.parameters.v;
+        JDM_Options[pair][user][ID].parameters.lam = _params.parameters.lam;
 
         JDM_Options[pair][msg.sender][ID].perDay = _params.perDay;
     }
@@ -171,13 +174,20 @@ contract OptionStorage is PairStorage {
         return (perDay, lastHedgeTimeStamp);
     }
 
-    function JDM_getDeltaParams(address pair, address user, uint ID) public view returns (int K, int T, int r, int sigma, bool isCall) {
-        K = JDM_Options[pair][user][ID].parameters.K;
-        T = JDM_Options[pair][user][ID].parameters.T;
-        r = JDM_Options[pair][user][ID].parameters.r;
-        sigma = JDM_Options[pair][user][ID].parameters.sigma;
+    function JDM_getDeltaParams(address pair, address user, uint ID) public view returns (
+        JDM.MertonInput memory input,
+        bool isCall) {
+
+        input.K = JDM_Options[pair][user][ID].parameters.K;
+        input.T = JDM_Options[pair][user][ID].parameters.T;
+        input.r = JDM_Options[pair][user][ID].parameters.r;
+        input.sigma = JDM_Options[pair][user][ID].parameters.sigma;
+        input.m = JDM_Options[pair][user][ID].parameters.m;
+        input.v = JDM_Options[pair][user][ID].parameters.v;
+        input.lam = JDM_Options[pair][user][ID].parameters.lam;
+
         isCall = JDM_Options[pair][user][ID].isCall;
-        return (K,T,r,sigma,isCall);
+        return (input, isCall);
     }
 
 
@@ -190,7 +200,6 @@ contract OptionStorage is PairStorage {
         lastHedgeTimeStamp = JDM_Options[pair][user][ID].lastHedgeTimeStamp;
         return (amount, expiry, fees, perDay, hedgeFee, lastHedgeTimeStamp);
     }
-
 
     function JDM_tokenAddr(address pair, address user, uint ID) public view returns (address tokenA, address tokenB) {
         tokenA = JDM_Options[pair][user][ID].tokenA;

@@ -298,9 +298,9 @@ describe("Multiple User Replication", () => {
   it("Position 2: BS Put replication: ", async () => {
     // input to JDM start replication
 
-    let tokenB_balance = "2";
+    let tokenB_balance = "4";
     let amount = "1";
-    let fee = "5000";
+    let fee = "1000";
     let perDay = "9";
     let K = "2000";
     let T = "0.5";
@@ -423,4 +423,6 @@ describe("Multiple User Replication", () => {
     daiBalance = ethers.BigNumber.from(daiBalance);
     console.log("paid fee DAI", daiBalance);
   });
+
+
 });

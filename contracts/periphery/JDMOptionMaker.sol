@@ -4,6 +4,8 @@ pragma solidity ^0.8.17;
 import 'contracts/periphery/PeripheryController.sol';
 import "contracts/libraries/JumpDiffusionModel.sol";
 
+import "hardhat/console.sol";
+
 /// @title OptionMaker
 /// @author DeltaDex
 /// @notice This contract contains the main logic for initializing option replication positions

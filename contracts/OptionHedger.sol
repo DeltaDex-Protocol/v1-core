@@ -181,7 +181,14 @@ contract OptionHedger is V3Swapper {
         bool isCall;
         input.S = price;
 
-        (input.K, input.T, input.r, input.sigma, isCall) = storageContract.JDM_getDeltaParams(pair, user, ID);
+        (input, isCall) = storageContract.JDM_getDeltaParams(pair, user, ID);
+
+        console.log("JDM get delta");
+        console.logInt(input.m);
+        console.logInt(input.v);
+        console.logInt(input.lam);
+
+        console.logInt(input.S);
 
         if(isCall) {
             delta = JDM.delta_MERTON_CALL(input);
@@ -209,9 +216,6 @@ contract OptionHedger is V3Swapper {
         // @dev get previous delta // inputs => tokenB balance, amount
         int previousDelta = HedgeMath.calculatePreviousDelta(storageContract.JDM_Options_tokenB_balance(pair,user,ID),storageContract.JDM_Options_amount(pair,user,ID));
 
-        console.log("previousDelta");
-        console.logInt(previousDelta);
-
         // @dev update T parameter. What if block.timestamp > expiry i.e. expired contract? (add require)
         int newTparam = HedgeMath.convertSecondstoYear(storageContract.JDM_Options_expiry(pair,user,ID) - block.timestamp);
 
@@ -219,7 +223,7 @@ contract OptionHedger is V3Swapper {
         storageContract.JDM_Options_updateT(pair, user, ID, newTparam);
 
         // @dev calculate new delta
-        int delta = JDMgetDelta(price, pair,user,ID);
+        int delta = JDMgetDelta(price, pair, user, ID);
 
         console.log("delta");
         console.logInt(delta);
@@ -266,7 +270,6 @@ contract OptionHedger is V3Swapper {
 
             // @dev update tokenB balance, only then do swap
             storageContract.JDM_Options_subB_addA(pair,user,ID,amount_tokenB_Out, amountOut);
-
         }
 
         // @dev get amount to send to user 2 (there may be a way to gas optimize this..)

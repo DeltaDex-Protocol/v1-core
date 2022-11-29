@@ -2,12 +2,12 @@ const { expect } = require("chai");
 const { parseUnits } = require("ethers/lib/utils");
 const { ethers, network } = require("hardhat");
 
-const DAI = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
-const WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+const DAI = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
+const WETH = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619";
 
 // DAI_daiWHALE must be an account, not contract
-const daiWHALE = "0x16B34Ce9A6a6F7FC2DD25Ba59bf7308E7B38E186";
-const wethWHALE = "0x56178a0d5f301baf6cf3e1cd53d9863437345bf9";
+const daiWHALE = "0x1a34edac6ab1cf8fe609f163d798c8644636c7dd";
+const wethWHALE = "0xCe2CC46682E9C6D5f174aF598fb4931a9c0bE68e";
 
 var MAKER;
 
@@ -243,7 +243,6 @@ describe("Multiple User Replication", () => {
 
   });
 
-
   it("Position 1: JDM Call replication: ", async () => {
     // input to JDM start replication
     let tokenA_balance = "5000";
@@ -394,7 +393,7 @@ describe("Multiple User Replication", () => {
     const user = await optionstorage.getPairUserAddress(pair, 0);
     console.log("user in hedge func", user);
 
-    const tx = await optionmaker.connect(accounts[1]).JDM_HEDGE(pair, user, 0, {
+    const tx = await optionmaker.connect(accounts[1]).JDM_HEDGE(pair, user, 2, {
       gasLimit: 2000000,
     });
 
@@ -418,13 +417,13 @@ describe("Multiple User Replication", () => {
     const user = await optionstorage.getPairUserAddress(pair, 0);
     console.log("user in hedge func", user);
 
-    const tx = await optionmaker.connect(accounts[1]).JDM_HEDGE(pair, user, 1, {
+    const tx = await optionmaker.connect(accounts[1]).JDM_HEDGE(pair, user, 3, {
       gasLimit: 2000000,
     });
 
     await tx.wait();
 
-    let jdm_option = await optionstorage.JDM_Options(pair, user, 1);
+    let jdm_option = await optionstorage.JDM_Options(pair, user, 0);
 
     let hedgeFee = ethers.BigNumber.from(jdm_option.hedgeFee);
 
@@ -435,5 +434,4 @@ describe("Multiple User Replication", () => {
     daiBalance = ethers.BigNumber.from(daiBalance);
     console.log("paid fee DAI", daiBalance);
   });
-
 });
