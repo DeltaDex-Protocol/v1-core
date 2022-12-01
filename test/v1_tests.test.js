@@ -203,7 +203,7 @@ describe("Multiple User Replication", () => {
     let tokenA_balance = "5000";
     let amount = "1";
     let fee = "400";
-    let perDay = "8";
+    let perDay = "18";
     let K = "1400";
     let T = "0.3";
     let r = "0.15";
@@ -256,7 +256,7 @@ describe("Multiple User Replication", () => {
     let tokenB_balance = "4";
     let amount = "1";
     let fee = "1000";
-    let perDay = "9";
+    let perDay = "12";
     let K = "2000";
     let T = "0.5";
     let r = "0.11";
@@ -301,9 +301,111 @@ describe("Multiple User Replication", () => {
     );
   });
 
+  it("Position 3: BS Call replication: ", async () => {
+    // input to JDM start replication
+    let tokenA_balance = "2000";
+    let amount = "1";
+    let fee = "400";
+    let perDay = "24";
+    let K = "1100";
+    let T = "0.3";
+    let r = "0.15";
+    let sigma = "0.8";
+
+    tokenA_balance = ethers.utils.parseUnits(tokenA_balance);
+    amount = ethers.utils.parseUnits(amount);
+    fee = ethers.utils.parseUnits(fee);
+
+    perDay = ethers.utils.parseUnits(perDay, "wei");
+
+    K = ethers.utils.parseUnits(K);
+    T = ethers.utils.parseUnits(T);
+    r = ethers.utils.parseUnits(r);
+    sigma = ethers.utils.parseUnits(sigma);
+
+    const input = [
+      DAI,
+      WETH,
+      tokenA_balance,
+      0,
+      true,
+      true,
+      amount,
+      0,
+      fee,
+      perDay,
+      0,
+      0,
+      [K, T, r, sigma],
+    ];
+
+    const tx = await optionmaker
+      .connect(accounts[0])
+      .BS_START_REPLICATION(input);
+    // wait until the transaction is mined
+    await tx.wait();
+
+    const pair = await optionstorage.getPair(DAI, WETH);
+    console.log("address of pair:", pair);
+
+    expect(await optionstorage.getPairUserAddress(pair, 0)).to.equal(
+      accounts[0].address
+    );
+  });
+
+  it("Position 4: BS Put replication: ", async () => {
+    // input to JDM start replication
+
+    let tokenB_balance = "2";
+    let amount = "1";
+    let fee = "1000";
+    let perDay = "24";
+    let K = "1150";
+    let T = "0.5";
+    let r = "0.11";
+    let sigma = "0.95";
+
+    tokenB_balance = ethers.utils.parseUnits(tokenB_balance);
+    amount = ethers.utils.parseUnits(amount);
+    fee = ethers.utils.parseUnits(fee);
+    perDay = ethers.utils.parseUnits(perDay, "wei");
+    K = ethers.utils.parseUnits(K);
+    T = ethers.utils.parseUnits(T);
+    r = ethers.utils.parseUnits(r);
+    sigma = ethers.utils.parseUnits(sigma);
+
+    const input = [
+      DAI,
+      WETH,
+      0,
+      tokenB_balance,
+      false,
+      true,
+      amount,
+      0,
+      fee,
+      perDay,
+      0,
+      0,
+      [K, T, r, sigma],
+    ];
+
+    const tx = await optionmaker
+      .connect(accounts[0])
+      .BS_START_REPLICATION(input);
+    // wait until the transaction is mined
+    await tx.wait();
+
+    const pair = await optionstorage.getPair(DAI, WETH);
+    console.log("address of pair:", pair);
+
+    expect(await optionstorage.getPairUserAddress(pair, 0)).to.equal(
+      accounts[0].address
+    );
+  });
 
   it("Should get the number of positions of user: ", async () => {
-    expect(await optionstorage.userIDlength(accounts[0].address)).to.equal(2);
+    expect(await optionstorage.userIDlength(accounts[0].address)).to.equal(4);
 
     const positions = await optionstorage.userIDlength(accounts[0].address);
 
@@ -322,7 +424,7 @@ describe("Multiple User Replication", () => {
 
     // await ethers.provider.send("evm_mine", [newTimestampInSeconds]);
 
-    await hre.ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
+    await hre.ethers.provider.send("evm_increaseTime", [24 * 60 * 120]);
     await network.provider.send("evm_mine");
 
     const blockNumBefore1 = await ethers.provider.getBlockNumber();
@@ -332,7 +434,7 @@ describe("Multiple User Replication", () => {
     console.log("timenow", currenttimestamp1);
   });
 
-  it("Hedge BS Call: ", async () => {
+/*   it("Hedge BS Call: ", async () => {
     const pair = await optionstorage.getPair(DAI, WETH);
 
     const user = await optionstorage.getPairUserAddress(pair, 0);
@@ -378,5 +480,5 @@ describe("Multiple User Replication", () => {
 
     daiBalance = ethers.BigNumber.from(daiBalance);
     console.log("paid fee DAI", daiBalance);
-  });
+  }); */
 });

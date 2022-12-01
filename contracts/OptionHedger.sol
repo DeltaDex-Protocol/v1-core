@@ -23,6 +23,8 @@ contract OptionHedger is V3Swapper {
     // @dev needs to be tested with manual input of delta
     function BS_HEDGE(address pair, address user, uint ID) public nonReentrant returns (uint payment) {
         bool isHedgeable = BSgetHedgeAvailability(pair, user, ID);
+        // testing
+        // bool isHedgeable = true;
 
         require(isHedgeable == true, "Can't hedge option yet");
 
