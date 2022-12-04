@@ -95,10 +95,11 @@ describe("Multiple User Replication", () => {
         HedgeMath: HedgeMathlib.address,
       },
     });
-    bsoptionmaker = await BSOptionMaker.deploy();
+    bsoptionmaker = await BSOptionMaker.deploy(DAI);
     await bsoptionmaker.deployed();
 
     console.log("periphery:", bsoptionmaker.address);
+
   });
 
   it("Should deploy main", async () => {
@@ -112,7 +113,8 @@ describe("Multiple User Replication", () => {
     });
     optionmaker = await OptionMaker.deploy(
       optionstorage.address,
-      bsoptionmaker.address
+      bsoptionmaker.address,
+      DAI
     );
     await optionmaker.deployed();
 
@@ -146,6 +148,9 @@ describe("Multiple User Replication", () => {
 
     let coreAddr = await bsoptionmaker.connect(accounts[0]).getCoreAddr();
     console.log("core addr: ", coreAddr);
+
+
+    await bsoptionmaker.connect(accounts[0]).initAvailablePairs(WETH, DAI);
   });
 
   it("Should unlock dai", async () => {

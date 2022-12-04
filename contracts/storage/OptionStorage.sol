@@ -37,6 +37,10 @@ contract OptionStorage is PairStorage {
         return (perDay, lastHedgeTimeStamp);
     }
 
+    function BS_allPositionParams(address pair, address user, uint ID) public view returns (BS.BS_params memory) {
+        return BS_Options[pair][user][ID];
+    }
+
     function BS_getDeltaParams(address pair, address user, uint ID) public view returns (int K, int T, int r, int sigma, bool isCall) {
         K = BS_Options[pair][user][ID].parameters.K;
         T = BS_Options[pair][user][ID].parameters.T;
@@ -62,16 +66,6 @@ contract OptionStorage is PairStorage {
         return (tokenA, tokenB);
     }
 
-    function BS_Options_tokenB_balance(address pair, address user, uint ID) public view returns (uint tokenB_balance) {
-        tokenB_balance = BS_Options[pair][user][ID].tokenB_balance;
-        return tokenB_balance;
-    }
-
-    function BS_Options_amount(address pair, address user, uint ID) public view returns (uint amount) {
-        amount = BS_Options[pair][user][ID].amount;
-        return amount;
-    }
-
     function BS_Options_expiry(address pair, address user, uint ID) public view returns (uint expiry) {
         expiry = BS_Options[pair][user][ID].expiry;
         return expiry;
@@ -85,15 +79,16 @@ contract OptionStorage is PairStorage {
         BS_Options[pair][user][ID].lastHedgeTimeStamp = lastHedgeTimeStamp;
     }
 
-    function BS_Options_getAmount(address pair, address user, uint ID) public view returns (uint) {
-        return BS_Options[pair][user][ID].amount;
+    function BS_Options_contractAmount(address pair, address user, uint ID) public view returns (uint amount) {
+        amount = BS_Options[pair][user][ID].amount;
+        return amount;
     }
 
-    function BS_Options_getTokenA_bal(address pair, address user, uint ID) public view returns (uint) {
+    function BS_Options_tokenA_balance(address pair, address user, uint ID) public view returns (uint) {
         return BS_Options[pair][user][ID].tokenA_balance;
     }
 
-    function BS_Options_getTokenB_bal(address pair, address user, uint ID) public view returns (uint) {
+    function BS_Options_tokenB_balance(address pair, address user, uint ID) public view returns (uint) {
         return BS_Options[pair][user][ID].tokenB_balance;
     }
 

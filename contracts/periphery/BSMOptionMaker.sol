@@ -16,10 +16,10 @@ contract BSMOptionMaker is PeripheryController {
     using PRBMathSD59x18 for int256;
     using SafeERC20 for IERC20;
 
-    constructor () PeripheryController(msg.sender) {}
+    constructor (address _DAI) PeripheryController(msg.sender, _DAI) {}
 
     function BS_START_REPLICATION(BS.BS_params memory _params, address positionOwner) public onlyCore returns (address pair,uint amountOut) {
-        require(checkTokenAddress(_params.tokenB), "token not listed");
+        require(checkTokenAddress(_params.tokenA, _params.tokenB), "token pair not listed");
 
         // @dev get address of pair
         pair = storageContract.getPair(_params.tokenA, _params.tokenB);

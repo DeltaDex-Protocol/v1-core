@@ -16,12 +16,14 @@ contract OptionMaker is OptionHedger {
     // periphery
     BSMOptionMaker public BSM_MAKER;
 
-    constructor (OptionStorage _storage, BSMOptionMaker _BSM_MAKER) {
+    constructor (OptionStorage _storage, BSMOptionMaker _BSM_MAKER, address _DAI) {
         deployer = msg.sender;
         storageContract = _storage;
         addressBSMaker = address(_BSM_MAKER);
 
         BSM_MAKER = _BSM_MAKER;
+
+        DAI = _DAI;
     }
 
     function transferIn(address positionOwner, address token, uint amount) public nonReentrant onlyTrusted returns (bool success) {

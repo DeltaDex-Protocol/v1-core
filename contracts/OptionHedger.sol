@@ -15,8 +15,6 @@ contract OptionHedger is V3Swapper {
     using PRBMathSD59x18 for int256;
     using SafeERC20 for IERC20;
 
-    address public DAI = 0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063;
-
     int public maxSlippage = 1e18;
 
     // @dev User 2 can read params, recalculate delta, and hedge the position
@@ -35,7 +33,7 @@ contract OptionHedger is V3Swapper {
         int price = int(getPrice(tokenB, tokenA));
 
         // @dev get previous delta
-        int previousDelta = HedgeMath.calculatePreviousDelta(storageContract.BS_Options_tokenB_balance(pair, user, ID), storageContract.BS_Options_amount(pair, user, ID));
+        int previousDelta = HedgeMath.calculatePreviousDelta(storageContract.BS_Options_tokenB_balance(pair, user, ID), storageContract.BS_Options_contractAmount(pair, user, ID));
 
         // @dev update T parameter. What if block.timestamp > expiry i.e. expired contract? (add require)
         int newTparam = HedgeMath.convertSecondstoYear(storageContract.BS_Options_expiry(pair, user, ID) - block.timestamp);
@@ -52,9 +50,9 @@ contract OptionHedger is V3Swapper {
         // @dev if delta is positive
         if (dDelta > 0) {
             // buy amount dDelta (change in delta * price * amount of contracts = amount of tokenA to sell)
-            uint amount_tokenA_Out = uint(dDelta.mul(price).mul(int(storageContract.BS_Options_getAmount(pair, user, ID))));
+            uint amount_tokenA_Out = uint(dDelta.mul(price).mul(int(storageContract.BS_Options_contractAmount(pair, user, ID))));
 
-            require(amount_tokenA_Out < storageContract.BS_Options_getTokenA_bal(pair, user, ID), "Not enough balance to hedge, 108");
+            require(amount_tokenA_Out < storageContract.BS_Options_tokenA_balance(pair, user, ID), "Not enough balance to hedge, 108");
 
             // swapping
             uint amountOut = _swapExactInputSingle(tokenA, tokenB, amount_tokenA_Out);
@@ -68,9 +66,9 @@ contract OptionHedger is V3Swapper {
         } else {
             // sell amount dDelta
             // essentially, if the change in delta if negative, dDelta is amount of tokenB to sell
-            uint amount_tokenB_Out = uint(dDelta.abs().div(price).mul(int(storageContract.BS_Options_getAmount(pair, user, ID))));
+            uint amount_tokenB_Out = uint(dDelta.abs().div(price).mul(int(storageContract.BS_Options_contractAmount(pair, user, ID))));
 
-            require(amount_tokenB_Out < storageContract.BS_Options_getTokenB_bal(pair, user, ID), "Not enough balance to hedge");
+            require(amount_tokenB_Out < storageContract.BS_Options_tokenB_balance(pair, user, ID), "Not enough balance to hedge");
 
             // swapping
             uint amountOut = _swapExactInputSingle(tokenB, tokenA, amount_tokenB_Out);

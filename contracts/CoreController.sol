@@ -16,6 +16,8 @@ contract CoreController is ReentrancyGuard {
     // periphery
     address public addressBSMaker;
 
+    address public DAI;
+
     modifier onlyDeployer {
         address msgSender = msg.sender;
         require(msgSender == deployer, "not owner");
