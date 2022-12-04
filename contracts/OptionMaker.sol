@@ -32,11 +32,11 @@ contract OptionMaker is OptionHedger {
         return success;
     }
 
-    function createPair(address tokenA, address tokenB) public onlyTrusted returns (address pair) {
+    function createPair(address tokenA, address tokenB) public nonReentrant onlyTrusted returns (address pair) {
         return _createPair(tokenA, tokenB);
     }
 
-    function swapExactInputSingle(address token0, address token1, uint amountIn) public onlyTrusted returns (uint amountOut) {
+    function swapExactInputSingle(address token0, address token1, uint amountIn) public nonReentrant onlyTrusted returns (uint amountOut) {
         return _swapExactInputSingle(token0, token1, amountIn);
     }
 
@@ -48,7 +48,6 @@ contract OptionMaker is OptionHedger {
         return (pair, amountOut);
     }
 
-    // @dev require check that msg.sender is owner of position!
     // @dev User 1 can update the params of their option replication for BS model call
     // DAI-ETH Call replication => fee is in DAI
     function BS_edit_params(address pair, uint ID, uint feeAmount, BS.BS_params memory _params) public nonReentrant returns (bool success) {
@@ -65,7 +64,7 @@ contract OptionMaker is OptionHedger {
 
 
     // @dev require check that msg.sender is owner of position!
-    function BS_Withdraw(address pair, uint ID) public nonReentrant returns (bool success) {
+    function BS_Withdraw(address pair, uint ID) public nonReentrant returns (bool) {
         address positionOwner = msg.sender;
 
         (address tokenA,
@@ -74,21 +73,18 @@ contract OptionMaker is OptionHedger {
         uint tokenB_balance,
         uint feeBalance) = storageContract.BS_getWithdrawParams(pair, positionOwner, ID);
 
-        storageContract.BS_withdraw(pair, positionOwner, ID);
+        require(storageContract.BS_withdraw(pair, positionOwner, ID), "Withdraw failed");
 
-        success = withdraw_transfer(positionOwner, tokenA, tokenB, tokenA_balance, tokenB_balance, feeBalance);
+        require(withdraw_transfer(positionOwner, tokenA, tokenB, tokenA_balance, tokenB_balance, feeBalance), "transfer failed");
 
-        require(success, "transfer failed");
-
-        return success;
+        return true;
     }
 
 
-    function withdraw_transfer(address positionOwner, address tokenA, address tokenB, uint tokenA_balance, uint tokenB_balance, uint feeBalance) internal returns (bool success) {
+    function withdraw_transfer(address positionOwner, address tokenA, address tokenB, uint tokenA_balance, uint tokenB_balance, uint feeBalance) internal returns (bool) {
         IERC20(tokenA).safeTransfer(positionOwner, tokenA_balance);
         IERC20(tokenB).safeTransfer(positionOwner, tokenB_balance);
         IERC20(DAI).safeTransfer(positionOwner, feeBalance);
-        success = true;
-        return success;
+        return true;
     }
 }

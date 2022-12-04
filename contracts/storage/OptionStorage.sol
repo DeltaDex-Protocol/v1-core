@@ -140,10 +140,11 @@ contract OptionStorage is PairStorage {
         return (tokenA, tokenB, tokenA_balance, tokenB_balance, feeBalance);
     }
 
-    function BS_withdraw(address pair, address user, uint ID) public onlyTrusted {
+    function BS_withdraw(address pair, address user, uint ID) public onlyTrusted returns (bool) {
         BS_Options[pair][user][ID].tokenA_balance = 0;
         BS_Options[pair][user][ID].tokenB_balance = 0;
         BS_Options[pair][user][ID].fees = 0;
+        return true;
     }
 
     function BS_hedge(address pair, address user, uint ID, uint tokenA_balance, uint tokenB_balance, uint fees) public onlyTrusted {
