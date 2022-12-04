@@ -7,27 +7,45 @@ import "contracts/libraries/BlackScholesModel.sol";
 import "./PairStorage.sol";
 
 contract OptionStorage is PairStorage {
-    // @dev BS Calls & Puts
-    // address TokenPair => address user => positinoID => position
-    mapping(address => mapping(address => mapping(uint => BS.BS_params))) public BS_Options;
-
-    // Black Scholes Merton Model
-    function write_BS_Options(address pair, address user, uint ID, BS.BS_params memory _params) public onlyTrusted {
-        BS_Options[pair][user][ID] = _params;
+    // @dev Initial Token Amounts
+    struct InitialTokenAmounts {
+        uint tokenA_balance;
+        uint tokenB_balance;
     }
 
-    function BS_edit_params(address pair, address user, uint ID, BS.BS_params memory _params) public onlyTrusted {
+    // address TokenPair => address user => positionID => amounts
+    mapping(address => mapping(address => mapping(uint => InitialTokenAmounts))) public InitialAmounts;
+
+
+    // @dev BS Calls & Puts
+    // address TokenPair => address user => positionID => position
+    mapping(address => mapping(address => mapping(uint => BS.BS_params))) public BS_Options;
+
+
+    function write_BS_Options(address pair, address user, uint ID, BS.BS_params memory _params) public onlyTrusted returns (bool) {
+        BS_Options[pair][user][ID] = _params;
+        return true;
+    }
+
+    function addInitialAmounts(address pair, address user, uint ID, uint tokenA_balance, uint tokenB_balance) public onlyTrusted returns (bool) {
+        InitialAmounts[pair][user][ID].tokenA_balance = tokenA_balance;
+        InitialAmounts[pair][user][ID].tokenB_balance = tokenB_balance;
+        return true;
+    }
+
+    function BS_edit_params(address pair, address user, uint ID, BS.BS_params memory _params) public onlyTrusted returns (bool) {
         // @dev nested struct params
         BS_Options[pair][user][ID].parameters.K = _params.parameters.K;
         BS_Options[pair][user][ID].parameters.T = _params.parameters.T;
         BS_Options[pair][user][ID].parameters.r = _params.parameters.r;
         BS_Options[pair][user][ID].parameters.sigma = _params.parameters.sigma;
-
         BS_Options[pair][msg.sender][ID].perDay = _params.perDay;
+        return true;
     }
 
-    function BS_addFee(address pair, address positionOwner, uint ID, uint feeAmount) public onlyTrusted {
+    function BS_addFee(address pair, address positionOwner, uint ID, uint feeAmount) public onlyTrusted returns (bool) {
         BS_Options[pair][positionOwner][ID].fees += feeAmount;
+        return true;
     }
 
     function BSgetHedgeAvailabilityParams(address pair, address user, uint ID) public view returns (uint perDay, uint lastHedgeTimeStamp) {
@@ -40,6 +58,7 @@ contract OptionStorage is PairStorage {
     function BS_allPositionParams(address pair, address user, uint ID) public view returns (BS.BS_params memory) {
         return BS_Options[pair][user][ID];
     }
+
 
     function BS_getDeltaParams(address pair, address user, uint ID) public view returns (int K, int T, int r, int sigma, bool isCall) {
         K = BS_Options[pair][user][ID].parameters.K;

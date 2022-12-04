@@ -80,13 +80,15 @@ contract PairStorage is StorageController {
     }
 
     // @dev link address token pair to user address
-    function addPairtoUserPositions(address positionOwner, address pair) public onlyTrusted {
+    function addPairtoUserPositions(address positionOwner, address pair) public onlyTrusted returns (bool) {
         Positions[positionOwner].push(pair);
+        return true;
     }
 
     // @dev add address user to token pair
-    function addPairUser(address positionOwner, address pair) public onlyTrusted {
+    function addPairUser(address positionOwner, address pair) public onlyTrusted returns (bool) {
         PairUsers[pair].push(positionOwner);
+        return true;
     }
 
     // @dev populate mapping in both directions

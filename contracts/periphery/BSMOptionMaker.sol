@@ -103,13 +103,16 @@ contract BSMOptionMaker is PeripheryController {
         _params.lastHedgeTimeStamp = block.timestamp;
 
         // @dev write params in storage contract
-        storageContract.write_BS_Options(pair, positionOwner, ID, _params);
+        require(storageContract.write_BS_Options(pair, positionOwner, ID, _params), "ST1");
+
+        // @dev add initial amounts to storage contract
+        require(storageContract.addInitialAmounts(pair, positionOwner, ID, _params.tokenA_balance, _params.tokenB_balance), "ST2");
 
         // @dev push ID to Positions array
-        storageContract.addPairtoUserPositions(positionOwner, pair);
+        require(storageContract.addPairtoUserPositions(positionOwner, pair), "ST3");
 
         // @dev push address user to PairUsers array
-        storageContract.addPairUser(positionOwner, pair);
+        require(storageContract.addPairUser(positionOwner, pair), "ST4");
 
         return true;
     }
