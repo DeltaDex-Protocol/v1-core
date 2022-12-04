@@ -488,7 +488,8 @@ describe("Multiple User Replication", () => {
     console.log("paid fee DAI", daiBalance);
   });
 
-  // @dev this is failing
+  // @dev this is failing bc of overflow in js 
+  // @dev make sure to take fees into account
   it("Close and withdraw position: ", async () => {
 
     const ID = 0;
@@ -498,8 +499,14 @@ describe("Multiple User Replication", () => {
     const tokenA_balance_c0 = await optionstorage.BS_Options_tokenA_balance(pair, accounts[0].address, ID);
     const tokenB_balance_c0 = await optionstorage.BS_Options_tokenB_balance(pair, accounts[0].address, ID);
 
+    console.log("tokenA_balance_c0", tokenA_balance_c0.toString());
+    console.log("tokenB_balance_c0", tokenB_balance_c0.toString());
+
     const tokenA_balance_t0 = await dai.balanceOf(accounts[0].address);
     const tokenB_balance_t0 = await weth.balanceOf(accounts[0].address);
+
+    console.log("tokenA_balance_t0", tokenA_balance_t0.toString());
+    console.log("tokenB_balance_t0", tokenB_balance_t0.toString());
 
     const tx = await optionmaker.connect(accounts[0]).BS_Withdraw(pair, 0, {
       gasLimit: 2000000,
@@ -507,21 +514,17 @@ describe("Multiple User Replication", () => {
 
     await tx.wait();
 
-    console.log("tokenA_balance_c0", tokenA_balance_c0);
-    console.log("tokenB_balance_c0", tokenB_balance_c0);
-
     const tokenA_balance_t1 = await dai.balanceOf(accounts[0].address);
     const tokenB_balance_t1 = await weth.balanceOf(accounts[0].address);
+
+    console.log("tokenA_balance_t1", tokenA_balance_t1.toString());
+    console.log("tokenB_balance_t1", tokenB_balance_t1.toString());
 
     const tokenA_balance_dx = tokenA_balance_t1 - tokenA_balance_t0;
     const tokenB_balance_dx = tokenB_balance_t1 - tokenB_balance_t0;
 
-    
     console.log("tokenA_balance_dx", tokenA_balance_dx);
     console.log("tokenB_balance_dx", tokenB_balance_dx);
-
-    console.log("tokenA_balance_dx", tokenA_balance_dx - tokenA_balance_c0);
-    console.log("tokenB_balance_dx", tokenB_balance_dx - tokenA_balance_c0);
 
     // expect(tokenA_balance_dx).to.equal(tokenA_balance_c0);
     // expect(tokenB_balance_dx).to.equal(tokenB_balance_c0);
