@@ -21,7 +21,6 @@ contract PairMaker is CoreController {
         pair = address(uint160(bytes20(salt)));
 
         storageContract.setPair(token0, token1, pair);
-        storageContract.setPair(token1, token0, pair);
 
         storageContract.pushToAllPairs(pair);
 
