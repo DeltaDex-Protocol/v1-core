@@ -9,8 +9,6 @@ const WETH = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
 const daiWHALE = "0x2FAF487A4414Fe77e2327F0bf4AE2a264a776AD2";
 const wethWHALE = "0xf584f8728b874a6a5c7a8d4d387c9aae9172d621";
 
-var MAKER;
-
 describe("Multiple User Replication", () => {
   let accounts;
   let dai;
