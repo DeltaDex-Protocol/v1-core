@@ -11,20 +11,10 @@ import "contracts/OptionMaker.sol";
 import "contracts/libraries/HedgeMath.sol";
 
 contract PeripheryController {
-
     OptionStorage public storageContract;
     OptionMaker public core;
 
     address public immutable deployer;
-
-    // Token Addresses
-    /* 
-    address public immutable WBTC = 0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6;
-    address public immutable WETH = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
-    address public immutable UNI = 0xb33EaAd8d922B1083446DC23f610c2567fB5180f;
-    address public immutable DAI = 0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063;
-    */
-
     address public DAI;
 
     mapping(address => address) public availablePairs;
@@ -61,7 +51,7 @@ contract PeripheryController {
 
     function getStorageAddr() public view returns (address) {
         return address(storageContract);
-    } 
+    }
 
     function getCoreAddr() public view returns (address) {
         return address(core);
@@ -75,5 +65,4 @@ contract PeripheryController {
             return false;
         }
     }
-
 }

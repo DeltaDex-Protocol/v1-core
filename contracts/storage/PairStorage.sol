@@ -68,7 +68,7 @@ contract PairStorage is StorageController {
     }
 
     // @dev return all addresses of users in token pair
-    // @dev currently only called
+    // @dev currently only called by frontend
     function getUserAddressesInPair(address pair) external view returns (address[] memory) {
         return PairUsers[pair];
     }

@@ -18,7 +18,7 @@ contract BSMOptionMaker is PeripheryController {
 
     constructor (address _DAI) PeripheryController(msg.sender, _DAI) {}
 
-    function BS_START_REPLICATION(BS.BS_params memory _params, address positionOwner) public onlyCore returns (address pair,uint amountOut) {
+    function BS_START_REPLICATION(BS.BS_params memory _params, address positionOwner) public onlyCore returns (address pair, uint amountOut) {
         require(checkTokenAddress(_params.tokenA, _params.tokenB), "token pair not listed");
 
         // @dev get address of pair
@@ -39,9 +39,9 @@ contract BSMOptionMaker is PeripheryController {
         uint ID = storageContract.userIDlength(positionOwner);
 
         // @dev get price of tokenB in terms of tokenA
-        int price = core.getPrice(_params.tokenB,_params.tokenA);
+        int price = core.getPrice(_params.tokenB, _params.tokenA);
 
-        // @dev create in memory MertonInput struct as input 
+        // @dev create in memory MertonInput struct as input
         BS.BlackScholesInput memory input;
 
         // @dev connect user input _params to MertonInput struct
@@ -55,31 +55,29 @@ contract BSMOptionMaker is PeripheryController {
 
         // @dev if call => user sends token0, if put => user sends token1
         if (_params.isCall == true) {
-
             // @dev check minimum required liquidity to replicate amount of contracts
-            require(HedgeMath.minimum_Liquidity_Call(_params.amount,delta,price) < _params.tokenA_balance, "insufficient balance - Call");
+            require(HedgeMath.minimum_Liquidity_Call(_params.amount, delta, price) < _params.tokenA_balance, "insufficient balance - Call");
 
             // @dev amount tokenB from user to transfer into this contract
             // @dev transfer uint _params.tokenA_balance to DeltaDex smart contract
-            require(core.transferIn(positionOwner, _params.tokenA,_params.tokenA_balance), "transfer failed");
+            require(core.transferIn(positionOwner, _params.tokenA, _params.tokenA_balance), "transfer failed");
 
             // @dev calculate amount tokenA to send to Uniswap v3 in exchange for tokenB
             uint amount_tokenA_Out = uint(delta.mul(int(_params.amount)).mul(price));
 
             // @dev update tokenA balance to be written to struct
             _params.tokenA_balance -= amount_tokenA_Out;
-            
+
             // @dev swap tokenA for tokenB in uniswap v3 => amountOut is amount of received tokenB (ether)
             _params.tokenB_balance += core.swapExactInputSingle(_params.tokenA, _params.tokenB, amount_tokenA_Out);
 
         } else {
-
             // @dev check minimum required liquidity to replicate amount of contracts
-            require(HedgeMath.minimum_Liquidity_Put(_params.amount,delta) < _params.tokenB_balance, "insufficient balance - Put");
+            require(HedgeMath.minimum_Liquidity_Put(_params.amount, delta) < _params.tokenB_balance, "insufficient balance - Put");
 
             // @dev amount tokenB from user to transfer into this contract
             // @dev transfer uint _params.tokenA_balance to DeltaDex smart contract
-            require(core.transferIn(positionOwner, _params.tokenB,_params.tokenB_balance), "transfer failed");
+            require(core.transferIn(positionOwner, _params.tokenB, _params.tokenB_balance), "transfer failed");
 
             // @dev calculate amount tokenA to send to Uniswap v3 in exchange for tokenB
             uint amount_tokenB_Out = uint(delta.mul(int(_params.amount)));
@@ -93,7 +91,7 @@ contract BSMOptionMaker is PeripheryController {
 
         BS_Write_Position_to_Mapping(pair, positionOwner, ID, _params);
 
-        return (pair,amountOut);
+        return (pair, amountOut);
     }
 
     // @dev internal function that writes params to mapping
@@ -119,13 +117,11 @@ contract BSMOptionMaker is PeripheryController {
 
     // @dev get delta of call if isCall is true, else get delta of put
     function getDelta(bool isCall, BS.BlackScholesInput memory input) internal pure returns (int delta) {
-        if(isCall) {
+        if (isCall) {
             delta = BS.delta_BS_CALL(input).abs();
-        }
-        else {
+        } else {
             delta = BS.delta_BS_PUT(input).abs();
         }
         return delta;
     }
-
 }
