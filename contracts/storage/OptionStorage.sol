@@ -59,6 +59,11 @@ contract OptionStorage is PairStorage {
         return BS_Options[pair][user][ID];
     }
 
+    function getInitialBalance(address pair, address user, uint ID) public view returns (uint tokenA_balance, uint tokenB_balance) {
+        tokenA_balance = InitialAmounts[pair][user][ID].tokenA_balance;
+        tokenB_balance = InitialAmounts[pair][user][ID].tokenB_balance;
+        return (tokenA_balance, tokenB_balance);
+    }
 
     function BS_getDeltaParams(address pair, address user, uint ID) public view returns (int K, int T, int r, int sigma, bool isCall) {
         K = BS_Options[pair][user][ID].parameters.K;
