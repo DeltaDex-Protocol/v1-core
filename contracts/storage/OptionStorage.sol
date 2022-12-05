@@ -11,6 +11,7 @@ contract OptionStorage is PairStorage {
     struct InitialTokenAmounts {
         uint tokenA_balance;
         uint tokenB_balance;
+        bool isClosed;
     }
 
     // address TokenPair => address user => positionID => amounts
@@ -31,6 +32,10 @@ contract OptionStorage is PairStorage {
         InitialAmounts[pair][user][ID].tokenA_balance = tokenA_balance;
         InitialAmounts[pair][user][ID].tokenB_balance = tokenB_balance;
         return true;
+    }
+
+    function getPositionStatus(address pair, address user, uint ID) public view returns (bool) {
+        return InitialAmounts[pair][user][ID].isClosed;
     }
 
     function BS_edit_params(address pair, address user, uint ID, BS.BS_params memory _params) public onlyTrusted returns (bool) {
@@ -153,6 +158,7 @@ contract OptionStorage is PairStorage {
         BS_Options[pair][user][ID].tokenA_balance = 0;
         BS_Options[pair][user][ID].tokenB_balance = 0;
         BS_Options[pair][user][ID].fees = 0;
+        InitialAmounts[pair][user][ID].isClosed = true;
         return true;
     }
 
