@@ -21,8 +21,6 @@ contract OptionHedger is V3Swapper {
     // @dev needs to be tested with manual input of delta
     function BS_HEDGE(address pair, address user, uint ID) public nonReentrant returns (uint payment) {
         bool isHedgeable = BSgetHedgeAvailability(pair, user, ID);
-        // testing
-        // bool isHedgeable = true;
 
         require(isHedgeable == true, "Can't hedge option yet");
 
@@ -84,9 +82,19 @@ contract OptionHedger is V3Swapper {
         payment = storageContract.BS_Options_hedgeFee(pair, user, ID);
         storageContract.BS_Options_updateHedgeFee(pair, user, ID, payment);
 
+        printTimestamp(pair, user, ID);
+
         // make payment
         IERC20(DAI).safeTransfer(msg.sender, payment);
         return payment;
+    }
+
+
+    // @dev next timestamp testfunc
+    // @dev something weird is going on with the timestamp of hedged positions
+    function printTimestamp(address pair, address user, uint ID) public view returns (uint) {
+        console.log("last hedge timestamp: ");
+        console.logUint(storageContract.getLastHedgeTimeStamp(pair, user, ID));
     }
 
 

@@ -108,6 +108,10 @@ contract OptionStorage is PairStorage {
         BS_Options[pair][user][ID].lastHedgeTimeStamp = lastHedgeTimeStamp;
     }
 
+    function getLastHedgeTimeStamp(address pair, address user, uint ID) public view returns (uint) {
+        return BS_Options[pair][user][ID].lastHedgeTimeStamp;
+    }
+
     function BS_Options_contractAmount(address pair, address user, uint ID) public view returns (uint amount) {
         amount = BS_Options[pair][user][ID].amount;
         return amount;

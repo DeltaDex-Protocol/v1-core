@@ -45,6 +45,7 @@ contract OptionMaker is OptionHedger {
         address positionOwner = msg.sender;
 
         (pair, amountOut) = BSM_MAKER.BS_START_REPLICATION(_params, positionOwner);
+
         return (pair, amountOut);
     }
 
