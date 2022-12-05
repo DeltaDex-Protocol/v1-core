@@ -52,5 +52,5 @@ https://rinkeby.etherscan.io/address/0xA8132b63AdE6ff0eAFE2b6a8E7E252A2418eCCec#
 #### Code Coverage 
 
 ```sh
-npx hardhat coverage --testfiles "test/deploy/newDeploy.test.js"
+npx hardhat coverage --testfiles "test/v1_tests.test.js""
 ```

@@ -44,7 +44,7 @@ contract V3Swapper is UniswapV3twap, PairMaker {
         });
         amountOut = swapRouter.exactInputSingle(params);
     }
-    
+    /* 
     // @dev this function is not being used currently
     function swapExactOutputSingle(address token0, address token1, uint amountOut, uint amountInMaximum)
         internal
@@ -82,5 +82,5 @@ contract V3Swapper is UniswapV3twap, PairMaker {
                 amountInMaximum - amountIn
             );
         }
-    }
+    } */
 }
