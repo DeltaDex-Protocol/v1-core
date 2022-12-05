@@ -111,6 +111,10 @@ contract OptionStorage is PairStorage {
         return BS_Options[pair][user][ID].tokenB_balance;
     }
 
+    function BS_Options_fee_balance(address pair, address user, uint ID) public view returns (uint) {
+        return BS_Options[pair][user][ID].fees;
+    }
+
     function BS_Options_hedgeFee(address pair, address user, uint ID) public view returns (uint) {
         return BS_Options[pair][user][ID].hedgeFee;
     }
