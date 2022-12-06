@@ -342,14 +342,16 @@ describe("Multiple User Replication", () => {
 
     let bs_option = await optionstorage.BS_Options(pair, user, 0);
 
-    let hedgeFee = ethers.BigNumber.from(bs_option.hedgeFee);
+    let lastHedgeTimestamp = Number(bs_option.lastHedgeTimeStamp);
 
-    console.log("hedge fee DAI", hedgeFee);
+    console.log("lastHedgeTimestamp", lastHedgeTimestamp);
 
-    let daiBalance = await dai.balanceOf(accounts[1].address);
+    const blockNumBefore = await ethers.provider.getBlockNumber();
+    const blockBefore = await ethers.provider.getBlock(blockNumBefore);
 
-    daiBalance = ethers.BigNumber.from(daiBalance);
-    console.log("paid fee DAI", daiBalance);
+    const currenttimestamp = blockBefore.timestamp;
+    console.log("timenow", currenttimestamp);
+
   });
 
   it("Hedge BS Put: ", async () => {
@@ -366,13 +368,14 @@ describe("Multiple User Replication", () => {
 
     let bs_option = await optionstorage.BS_Options(pair, user, 0);
 
-    let hedgeFee = ethers.BigNumber.from(bs_option.hedgeFee);
+    let lastHedgeTimestamp = Number(bs_option.lastHedgeTimeStamp);
 
-    console.log("hedge fee DAI", hedgeFee);
+    console.log("lastHedgeTimestamp", lastHedgeTimestamp);
 
-    let daiBalance = await dai.balanceOf(accounts[1].address);
+    const blockNumBefore = await ethers.provider.getBlockNumber();
+    const blockBefore = await ethers.provider.getBlock(blockNumBefore);
 
-    daiBalance = ethers.BigNumber.from(daiBalance);
-    console.log("paid fee DAI", daiBalance);
+    const currenttimestamp = blockBefore.timestamp;
+    console.log("timenow", currenttimestamp);
   });
 });

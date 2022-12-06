@@ -82,19 +82,9 @@ contract OptionHedger is V3Swapper {
         payment = storageContract.BS_Options_hedgeFee(pair, user, ID);
         storageContract.BS_Options_updateHedgeFee(pair, user, ID, payment);
 
-        printTimestamp(pair, user, ID);
-
         // make payment
         IERC20(DAI).safeTransfer(msg.sender, payment);
         return payment;
-    }
-
-
-    // @dev next timestamp testfunc
-    // @dev something weird is going on with the timestamp of hedged positions
-    function printTimestamp(address pair, address user, uint ID) public view returns (uint) {
-        console.log("last hedge timestamp: ");
-        console.logUint(storageContract.getLastHedgeTimeStamp(pair, user, ID));
     }
 
 
