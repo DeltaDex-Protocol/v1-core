@@ -9,7 +9,7 @@ const WETH = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619";
 
 // DAI_daiWHALE must be an account, not contract
 const daiWHALE = "0x1a34edac6ab1cf8fe609f163d798c8644636c7dd";
-const wethWHALE = "0xCe2CC46682E9C6D5f174aF598fb4931a9c0bE68e";
+const wethWHALE = "0x0f0c716b007c289c0011e470cc7f14de4fe9fc80";
 
 var MAKER;
 
