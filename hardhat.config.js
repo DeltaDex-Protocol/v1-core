@@ -26,7 +26,7 @@ module.exports = {
       ],
       gasLimit: 25 * 10 ** 6,
     },
-    matic: {
+    mumbai: {
       url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.POLYGON_API_KEY}`,
       accounts: [
         `${process.env.RINKEBY_PRIVATE_KEY_1}`,

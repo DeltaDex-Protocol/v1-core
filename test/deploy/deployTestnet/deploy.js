@@ -31,8 +31,6 @@ async function main() {
   Statslib = await Statistics.deploy();
   await Statslib.deployed();
 
-  console.log(Statslib.address);
-
   currentAddresses.Statslib = Statslib.address;
   Addresses.UpdateAddresses(currentAddresses);
 
@@ -111,10 +109,10 @@ async function main() {
 
 
 
-
+/* 
 
   // ######## @dev setting addresses ###########
-  // sleep(20000);
+  sleep(20000);
   console.log("woke up 1");
 
   let tx = await optionstorage
@@ -122,7 +120,7 @@ async function main() {
     .setCoreAddr(optionmaker.address);
   await tx.wait();
 
-  // sleep(20000);
+  sleep(20000);
   console.log("woke up 2");
 
   let tx1 = await optionstorage
@@ -132,12 +130,12 @@ async function main() {
     );
   await tx1.wait();
 
-  // sleep(20000);
+  sleep(20000);
   console.log("woke up 3");
 
   await optionstorage.connect(signers[0]).initializeAvailablePair(WETH, DAI);
 
-  // sleep(20000);
+  sleep(20000);
   console.log("woke up 4");
 
   // ######## @dev setting addresses ###########
@@ -147,7 +145,7 @@ async function main() {
       gasLimit: 3000000,
     });
 
-  // sleep(20000);
+  sleep(20000);
   console.log("woke up 5");
 
   let storageAddr = await bsoptionmaker.connect(signers[0]).getStorageAddr();
@@ -157,11 +155,11 @@ async function main() {
     gasLimit: 3000000,
   });
 
-  // sleep(20000);
+  sleep(20000);
   console.log("woke up 6");
 
   let coreAddr = await bsoptionmaker.connect(signers[0]).getCoreAddr();
-  console.log("core addr: ", coreAddr);
+  console.log("core addr: ", coreAddr); */
 }
 
 function sleep(milliseconds) {

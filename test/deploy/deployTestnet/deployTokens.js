@@ -1,7 +1,12 @@
+var Addresses = require("./addresses.js");
+
+
 async function main() {
   const deployer = await ethers.getSigners();
 
-  console.log(deployer[0].address);
+  let currentAddresses = Addresses.LoadAddresses();
+
+  console.log("deployer address: ", deployer[0].address);
 
   // console.log("Deploying contracts with the account:", deployer.address);
   // console.log("Account balance:", (await deployer.getBalance()).toString());
@@ -23,6 +28,14 @@ async function main() {
 
   console.log("DAI address", sDAI.address);
   console.log("WETH address", sWETH.address);
+
+
+  currentAddresses.sDAI = sDAI.address;
+  Addresses.UpdateAddresses(currentAddresses);
+
+  currentAddresses.sWETH = sWETH.address;
+  Addresses.UpdateAddresses(currentAddresses);
+
 
   const user_DAI_balance = await sDAI.balanceOf(deployer[0].address);
   const user_WETH_balance = await sWETH.balanceOf(deployer[0].address);
