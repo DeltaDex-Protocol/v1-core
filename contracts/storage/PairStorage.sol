@@ -4,6 +4,10 @@ pragma solidity ^0.8.17;
 
 import "./StorageController.sol";
 
+interface ICORE {
+    function createPair(address tokenA, address tokenB) external returns (address pair);
+}
+
 contract PairStorage is StorageController {
     // @dev currently not in use
     struct Pair {
@@ -25,11 +29,11 @@ contract PairStorage is StorageController {
     // all pool addresses
     address[] public allPairs;
 
-    // pool data
+    // @dev not used yet | pool data
     mapping(address => Pair) public Pairs;
 
-    // pool fees
-    mapping(address => Fees) public PairFees;
+    // @dev not used yet - consider removing | pool fees
+    // mapping(address => Fees) public PairFees;
 
     // address TokenPair => array of addresses
     mapping(address => address[]) public PairUsers;
@@ -37,6 +41,11 @@ contract PairStorage is StorageController {
     // address user => array of IDs
     mapping(address => address[]) public Positions;
 
+    function initializeAvailablePair(address tokenA, address tokenB) public onlyDeployer {
+        address pair = ICORE(CORE).createPair(tokenA, tokenB);
+        allPairs.push(pair);
+    }
+ 
     // @dev returns number of all pairs in contract
     function numOfPairs() public view returns (uint) {
         return allPairs.length;

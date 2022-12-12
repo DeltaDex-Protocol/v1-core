@@ -10,17 +10,10 @@ async function main() {
   const DAI = currentAddresses.sDAI;
   const WETH = currentAddresses.sWETH;
 
-  // let dai;
-  // let daiwhale;
-  // let weth;
-  // let wethwhale;
-
   // libraries
   let Statslib;
   let HedgeMathlib;
   let BSlib;
-  let JDMlib;
-  let BSClib;
 
   // main
   let optionmaker;
@@ -30,9 +23,8 @@ async function main() {
 
   // periphery
   let bsoptionmaker;
-  let jdmoptionmaker;
-  let bscoptionmaker;
 
+  // ######## @dev deploying statistics library ###########
   const Statistics = await ethers.getContractFactory("Statistics");
   Statslib = await Statistics.deploy();
   await Statslib.deployed();
@@ -42,7 +34,7 @@ async function main() {
   currentAddresses.Statslib = Statslib.address;
   Addresses.UpdateAddresses(currentAddresses);
 
-  // @dev deploy HedgeMath.sol
+  // ######## @dev deploying HedgeMath library ###########
   const HedgeMath = await ethers.getContractFactory("HedgeMath");
   HedgeMathlib = await HedgeMath.deploy();
   await HedgeMathlib.deployed();
@@ -50,7 +42,7 @@ async function main() {
   currentAddresses.HedgeMathlib = HedgeMathlib.address;
   Addresses.UpdateAddresses(currentAddresses);
 
-  // @dev deploy Black Scholes model library
+  // ######## @dev deploying Black Scholes library ###########
   const BS = await ethers.getContractFactory("BS", {
     signer: signers[0],
     libraries: {
@@ -63,39 +55,10 @@ async function main() {
   currentAddresses.BSlib = BSlib.address;
   Addresses.UpdateAddresses(currentAddresses);
 
-  // @dev deploy JDM model library
-  const JDM = await ethers.getContractFactory("JDM", {
-    signer: signers[0],
-    libraries: {
-      Statistics: Statslib.address,
-    },
-  });
-  JDMlib = await JDM.deploy();
-  await JDMlib.deployed();
-  console.log("JDM library:", JDMlib.address);
-
-  currentAddresses.JDMlib = JDMlib.address;
-  Addresses.UpdateAddresses(currentAddresses);
-
-  // @dev deploy Curved options model library
-  const BSC = await ethers.getContractFactory("BSC", {
-    signer: signers[0],
-    libraries: {
-      Statistics: Statslib.address,
-    },
-  });
-  BSClib = await BSC.deploy();
-  await BSClib.deployed();
-  console.log("BSC library:", BSClib.address);
-
-  currentAddresses.BSClib = BSClib.address;
-  Addresses.UpdateAddresses(currentAddresses);
-
-  // @dev Deploying storage
+  // ######## @dev deploying OptionStorage contract ###########
   const OptionStorage = await ethers.getContractFactory("OptionStorage", {
     signer: signers[0],
   });
-  // @dev signers 1 & 2 are fillers
   optionstorage = await OptionStorage.deploy();
   await optionstorage.deployed();
   console.log("storage address:", optionstorage.address);
@@ -103,7 +66,7 @@ async function main() {
   currentAddresses.optionstorage = optionstorage.address;
   Addresses.UpdateAddresses(currentAddresses);
 
-  // ######## @dev deploying periphery contracts Contracts ###########
+  // ######## @dev deploying BSOptionMaker contract ###########
   const BSOptionMaker = await ethers.getContractFactory("BSMOptionMaker", {
     signer: signers[0],
     libraries: {
@@ -111,7 +74,7 @@ async function main() {
       HedgeMath: HedgeMathlib.address,
     },
   });
-  bsoptionmaker = await BSOptionMaker.deploy();
+  bsoptionmaker = await BSOptionMaker.deploy(DAI);
   await bsoptionmaker.deployed();
 
   console.log("periphery:", bsoptionmaker.address);
@@ -119,51 +82,19 @@ async function main() {
   currentAddresses.bsoptionmaker = bsoptionmaker.address;
   Addresses.UpdateAddresses(currentAddresses);
 
-  const JDMOptionMaker = await ethers.getContractFactory("JDMOptionMaker", {
-    signer: signers[0],
-    libraries: {
-      JDM: JDMlib.address,
-      HedgeMath: HedgeMathlib.address,
-    },
-  });
-  jdmoptionmaker = await JDMOptionMaker.deploy();
-  await jdmoptionmaker.deployed();
 
-  console.log("periphery:", jdmoptionmaker.address);
-
-  currentAddresses.jdmoptionmaker = jdmoptionmaker.address;
-  Addresses.UpdateAddresses(currentAddresses);
-
-  const BSCOptionMaker = await ethers.getContractFactory("BSCOptionMaker", {
-    signer: signers[0],
-    libraries: {
-      BSC: BSClib.address,
-      HedgeMath: HedgeMathlib.address,
-    },
-  });
-  bscoptionmaker = await BSCOptionMaker.deploy();
-  await bscoptionmaker.deployed();
-
-  console.log("BSCOptionMaker address:", bscoptionmaker.address);
-
-  currentAddresses.bscoptionmaker = bscoptionmaker.address;
-  Addresses.UpdateAddresses(currentAddresses);
-
-  // @dev Deploying main
+  // ######## @dev deploying OptionMaker contract ###########
   const OptionMaker = await ethers.getContractFactory("OptionMaker", {
     signer: signers[0],
     libraries: {
       BS: BSlib.address,
-      JDM: JDMlib.address,
-      // BSC: BSClib.address,
       HedgeMath: HedgeMathlib.address,
     },
   });
   optionmaker = await OptionMaker.deploy(
     optionstorage.address,
     bsoptionmaker.address,
-    jdmoptionmaker.address,
-    bscoptionmaker.address
+    DAI
   );
   await optionmaker.deployed();
 
@@ -172,7 +103,12 @@ async function main() {
   currentAddresses.optionmaker = optionmaker.address;
   Addresses.UpdateAddresses(currentAddresses);
 
-  sleep(20000);
+
+
+
+
+  // ######## @dev setting addresses ###########
+  // sleep(20000);
   console.log("woke up 1");
 
   let tx = await optionstorage
@@ -180,31 +116,33 @@ async function main() {
     .setCoreAddr(optionmaker.address);
   await tx.wait();
 
-  sleep(20000);
+  // sleep(20000);
   console.log("woke up 2");
 
   let tx1 = await optionstorage
     .connect(signers[0])
     .setPeripheryAddr(
       bsoptionmaker.address,
-      jdmoptionmaker.address,
-      bscoptionmaker.address
     );
   await tx1.wait();
 
-  sleep(20000);
+  // sleep(20000);
   console.log("woke up 3");
 
-  // bs
+  await optionstorage.connect(accounts[0]).initializeAvailablePair(WETH, DAI);
 
+  // sleep(20000);
+  console.log("woke up 4");
+
+  // ######## @dev setting addresses ###########
   await bsoptionmaker
     .connect(signers[0])
     .setStorageAddr(optionstorage.address, {
       gasLimit: 3000000,
     });
 
-  sleep(20000);
-  console.log("woke up 4");
+  // sleep(20000);
+  console.log("woke up 5");
 
   let storageAddr = await bsoptionmaker.connect(signers[0]).getStorageAddr();
   console.log("storage addr: ", storageAddr);
@@ -213,57 +151,11 @@ async function main() {
     gasLimit: 3000000,
   });
 
-  sleep(20000);
-  console.log("woke up 5");
+  // sleep(20000);
+  console.log("woke up 6");
 
   let coreAddr = await bsoptionmaker.connect(signers[0]).getCoreAddr();
   console.log("core addr: ", coreAddr);
-
-  // jdm
-  await jdmoptionmaker
-    .connect(signers[0])
-    .setStorageAddr(optionstorage.address, {
-      gasLimit: 3000000,
-    });
-
-  sleep(20000);
-  console.log("woke up 6");
-
-  let storageAddr1 = await jdmoptionmaker.connect(signers[0]).getStorageAddr();
-  console.log("storage addr: ", storageAddr1);
-
-  await jdmoptionmaker.connect(signers[0]).setCoreAddr(optionmaker.address, {
-    gasLimit: 3000000,
-  });
-
-  sleep(20000);
-  console.log("woke up 7");
-
-  let coreAddr1 = await jdmoptionmaker.connect(signers[0]).getCoreAddr();
-  console.log("core addr: ", coreAddr1);
-
-  // bsc
-  await bscoptionmaker
-    .connect(signers[0])
-    .setStorageAddr(optionstorage.address, {
-      gasLimit: 3000000,
-    });
-
-  sleep(20000);
-  console.log("woke up 8");
-
-  let storageAddr2 = await bscoptionmaker.connect(signers[0]).getStorageAddr();
-  console.log("storage addr: ", storageAddr2);
-
-  await bscoptionmaker.connect(signers[0]).setCoreAddr(optionmaker.address, {
-    gasLimit: 3000000,
-  });
-
-  sleep(20000);
-  console.log("woke up 9");
-
-  let coreAddr2 = await bscoptionmaker.connect(signers[0]).getCoreAddr();
-  console.log("core addr: ", coreAddr2);
 }
 
 function sleep(milliseconds) {

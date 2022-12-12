@@ -56,13 +56,4 @@ contract PeripheryController {
     function getCoreAddr() public view returns (address) {
         return address(core);
     }
-
-
-    function checkTokenAddress(address tokenA, address tokenB) internal view returns (bool) {
-        if (availablePairs[tokenA] != address(0) && availablePairs[tokenA] == tokenB) {
-            return true;
-        } else {
-            return false;
-        }
-    }
 }

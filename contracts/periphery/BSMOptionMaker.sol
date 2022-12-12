@@ -115,6 +115,14 @@ contract BSMOptionMaker is PeripheryController {
         return true;
     }
 
+    function checkTokenAddress(address tokenA, address tokenB) internal view returns (bool) {
+        if (storageContract.getPair(tokenA, tokenB) != address(0)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     // @dev get delta of call if isCall is true, else get delta of put
     function getDelta(bool isCall, BS.BlackScholesInput memory input) internal pure returns (int delta) {
         if (isCall) {

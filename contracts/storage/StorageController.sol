@@ -27,19 +27,19 @@ contract StorageController {
         deployer = msg.sender;
     }
 
-    function getCoreAddr() public view returns (address) {
-        return address(CORE);
-    }
-
-    function getPeripheryAddr() public view returns (address) {
-        return (address(BSM_MAKER));
-    }
-
     function setCoreAddr(address _CORE) public onlyDeployer {
         CORE = _CORE;
     }
 
     function setPeripheryAddr(address _BSM_MAKER) public onlyDeployer {
         BSM_MAKER = _BSM_MAKER;
+    }
+
+    function getCoreAddr() public view returns (address) {
+        return address(CORE);
+    }
+
+    function getPeripheryAddr() public view returns (address) {
+        return (address(BSM_MAKER));
     }
 }

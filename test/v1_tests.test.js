@@ -135,6 +135,9 @@ describe("Multiple User Replication", () => {
         bsoptionmaker.address
       );
     tx1.wait();
+
+    await optionstorage.connect(accounts[0]).initializeAvailablePair(WETH, DAI);
+
   });
 
   it("Should set addresses inside periphery", async () => {
@@ -152,7 +155,6 @@ describe("Multiple User Replication", () => {
     console.log("core addr: ", coreAddr);
 
 
-    await bsoptionmaker.connect(accounts[0]).initAvailablePairs(WETH, DAI);
   });
 
   it("Should unlock dai", async () => {

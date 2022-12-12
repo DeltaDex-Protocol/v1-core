@@ -26,7 +26,7 @@ contract CoreController is ReentrancyGuard {
 
     modifier onlyTrusted {
         address sender = msg.sender;
-        require(sender == address(addressBSMaker), "not trusted");
+        require(sender == address(addressBSMaker) || sender == address(storageContract), "not trusted");
         _;
     }
 

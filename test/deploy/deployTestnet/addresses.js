@@ -1,7 +1,7 @@
 const LoadAddresses = () => {
   var fs = require("fs");
   // fs.writeFile('../deploy/deployTestnet/myjsonfile.json', `{"table": []}`, 'utf8', () => {});
-  return JSON.parse(fs.readFileSync("./addresses.json", "utf8"));
+  return JSON.parse(fs.readFileSync("test/deploy/deployTestnet/addresses.json", "utf8"));
 };
 
 // [{name: '', addr: ''}]
