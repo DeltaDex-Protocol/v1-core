@@ -20,36 +20,28 @@ async function main() {
 
   const optionstorage = await ethers.getContractAt("OptionStorage", STORAGE);
 
-  const amount = await sDAI.balanceOf(signers[0].address);
+  const amountDAI = await sDAI.balanceOf(signers[0].address);
+  const amountWETH = await sDAI.balanceOf(signers[0].address);
 
-  console.log();
 
-  console.log(amount);
-
-  // amount = ethers.utils.parseUnits(amount);
-
-  //console.log(signers[0].address);
-
-  /*   console.log("sleep");
-  sleep(2999999); */
-
-  await sDAI.connect(signers[0]).approve(optionmaker.address, amount);
+  await sDAI.connect(signers[0]).approve(optionmaker.address, amountDAI);
   // sleep(20000);
-  await sWETH.connect(signers[0]).approve(optionmaker.address, amount);
+  await sWETH.connect(signers[0]).approve(optionmaker.address, amountWETH);
   // sleep(20000);
 
-  // input to JDM start replication
+
+  // input to BS start replication
   let tokenA_balance = "5000";
-  let amount1 = "1";
+  let amount = "1";
   let fee = "400";
-  let perDay = "8";
+  let perDay = "24";
   let K = "1400";
   let T = "0.3";
   let r = "0.15";
   let sigma = "0.8";
 
   tokenA_balance = ethers.utils.parseUnits(tokenA_balance);
-  amount1 = ethers.utils.parseUnits(amount1);
+  amount = ethers.utils.parseUnits(amount);
   fee = ethers.utils.parseUnits(fee);
 
   perDay = ethers.utils.parseUnits(perDay, "wei");
@@ -66,7 +58,7 @@ async function main() {
     0,
     true,
     true,
-    amount1,
+    amount,
     0,
     fee,
     perDay,
@@ -75,19 +67,18 @@ async function main() {
     [K, T, r, sigma],
   ];
 
-  const tx2 = await optionmaker.connect(signers[0]).BS_START_REPLICATION(input);
+  const tx = await optionmaker
+    .connect(signers[0])
+    .BS_START_REPLICATION(input);
   // wait until the transaction is mined
-  await tx2.wait();
+  await tx.wait();
 
   const pair = await optionstorage.getPair(DAI, WETH);
   console.log("address of pair:", pair);
 
   const position = await optionstorage.BS_Options(pair, signers[0].address, 0);
-  console.log("new position", position);
 
-  // expect(await optionstorage.getPairUserAddress(pair, 0)).to.equal(
-  //   signers[0].address
-  // );
+  console.log("position:", position);
 }
 
 function sleep(milliseconds) {

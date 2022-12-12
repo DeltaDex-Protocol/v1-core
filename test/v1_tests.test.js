@@ -208,7 +208,7 @@ describe("Multiple User Replication", () => {
   });
 
   it("Position 1: BS Call replication: ", async () => {
-    // input to JDM start replication
+    // input to BS start replication
     let tokenA_balance = "5000";
     let amount = "1";
     let fee = "400";

@@ -1,4 +1,4 @@
-const { sluDependencies } = require("mathjs");
+// const { sluDependencies } = require("mathjs");
 var Addresses = require("./addresses.js");
 
 async function main() {
@@ -23,6 +23,8 @@ async function main() {
 
   // periphery
   let bsoptionmaker;
+
+
 
   // ######## @dev deploying statistics library ###########
   const Statistics = await ethers.getContractFactory("Statistics");
@@ -54,6 +56,10 @@ async function main() {
 
   currentAddresses.BSlib = BSlib.address;
   Addresses.UpdateAddresses(currentAddresses);
+
+
+
+
 
   // ######## @dev deploying OptionStorage contract ###########
   const OptionStorage = await ethers.getContractFactory("OptionStorage", {
@@ -129,7 +135,7 @@ async function main() {
   // sleep(20000);
   console.log("woke up 3");
 
-  await optionstorage.connect(accounts[0]).initializeAvailablePair(WETH, DAI);
+  await optionstorage.connect(signers[0]).initializeAvailablePair(WETH, DAI);
 
   // sleep(20000);
   console.log("woke up 4");
