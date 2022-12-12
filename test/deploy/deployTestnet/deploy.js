@@ -109,57 +109,46 @@ async function main() {
 
 
 
-/* 
-
   // ######## @dev setting addresses ###########
-  sleep(20000);
+  // sleep(20000);
   console.log("woke up 1");
 
-  let tx = await optionstorage
-    .connect(signers[0])
-    .setCoreAddr(optionmaker.address);
+  let tx = await optionstorage.connect(signers[0]).setCoreAddr(optionmaker.address);
   await tx.wait();
 
-  sleep(20000);
+  // sleep(20000);
   console.log("woke up 2");
 
-  let tx1 = await optionstorage
-    .connect(signers[0])
-    .setPeripheryAddr(
-      bsoptionmaker.address,
-    );
+  let tx1 = await optionstorage.connect(signers[0]).setPeripheryAddr(bsoptionmaker.address);
   await tx1.wait();
 
-  sleep(20000);
+  // sleep(20000);
   console.log("woke up 3");
 
-  await optionstorage.connect(signers[0]).initializeAvailablePair(WETH, DAI);
+  let tx2 = await optionstorage.connect(signers[0]).initializeAvailablePair(WETH, DAI);
+  await tx2.wait();
 
-  sleep(20000);
+  // sleep(20000);
   console.log("woke up 4");
 
   // ######## @dev setting addresses ###########
-  await bsoptionmaker
-    .connect(signers[0])
-    .setStorageAddr(optionstorage.address, {
-      gasLimit: 3000000,
-    });
+  let tx3 = await bsoptionmaker.connect(signers[0]).setStorageAddr(optionstorage.address);
+  await tx3.wait();
 
-  sleep(20000);
+  // sleep(20000);
   console.log("woke up 5");
 
   let storageAddr = await bsoptionmaker.connect(signers[0]).getStorageAddr();
   console.log("storage addr: ", storageAddr);
 
-  await bsoptionmaker.connect(signers[0]).setCoreAddr(optionmaker.address, {
-    gasLimit: 3000000,
-  });
+  let tx4 = await bsoptionmaker.connect(signers[0]).setCoreAddr(optionmaker.address);
+  await tx4.wait();
 
-  sleep(20000);
+  // sleep(20000);
   console.log("woke up 6");
 
   let coreAddr = await bsoptionmaker.connect(signers[0]).getCoreAddr();
-  console.log("core addr: ", coreAddr); */
+  console.log("core addr: ", coreAddr);
 }
 
 function sleep(milliseconds) {
