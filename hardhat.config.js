@@ -14,7 +14,7 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: `https://rpc.ankr.com/polygon_mumbai`,
+        url: `https://matic-mumbai.chainstacklabs.com	`,
       },
     },
     rinkeby: {
@@ -27,7 +27,7 @@ module.exports = {
       gasLimit: 25 * 10 ** 6,
     },
     mumbai: {
-      url: `https://rpc.ankr.com/polygon_mumbai`,
+      url: `https://matic-mumbai.chainstacklabs.com	`,
       accounts: [
         `${process.env.RINKEBY_PRIVATE_KEY_1}`,
         `${process.env.RINKEBY_PRIVATE_KEY_2}`,
