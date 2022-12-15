@@ -5,7 +5,7 @@ npx hardhat node
 ```
 
 ```sh
-npx hardhat run test/deploy/deployTestnet/deploy.js --network localhost
+npx hardhat run test/deploy/deploy.js --network localhost
 ```
 
 ```sh
@@ -13,7 +13,7 @@ npx hardhat test test/deploy/unlock.test.js --network localhost
 ```
 
 ```sh
-npx hardhat run test/deploy/deployTestnet/startReplication.js --network localhost
+npx hardhat run test/deploy/startReplication.js --network localhost
 ```
 
 
@@ -23,22 +23,17 @@ npx hardhat run test/deploy/deployTestnet/startReplication.js --network localhos
 Deploy mock ERC20 tokens first
 
 ```sh
-npx hardhat run test/deploy/deployTestnet/deployTokens.js --network mumbai
+npx hardhat run test/deploy/deployTokens.js --network mumbai
 ```
 
 Then go and add liquidity on Uniswap on mumbai
 
 ```sh
-npx hardhat run test/deploy/deployTestnet/deploy.js --network mumbai
+npx hardhat run test/deploy/deploy.js --network mumbai
 ```
 
 ```sh
-npx hardhat run test/deploy/deployTestnet/setAddresses.js --network mumbai
-```
-
-
-```sh
-npx hardhat run test/deploy/deployTestnet/startReplication.js --network localhost
+npx hardhat run test/deploy/startReplication.js --network localhost
 ```
 
 
