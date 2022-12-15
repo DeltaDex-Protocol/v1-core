@@ -24,10 +24,12 @@ contract BSMOptionMaker is PeripheryController {
         // @dev get address of pair
         pair = storageContract.getPair(_params.tokenA, _params.tokenB);
 
+/* 
         // @dev if pair address doesn't exist, create address of pair
         if (pair == address(0)) {
             pair = core.createPair(_params.tokenA, _params.tokenB);
         }
+ */
 
         require(_params.fees > 0, "must deposit fee to pay for replication");
         require(_params.perDay > 0, "must hedge at least once per day");
