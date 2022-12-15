@@ -63,7 +63,6 @@ contract OptionMaker is OptionHedger {
         return true;
     }
 
-
     function BS_Withdraw(address pair, uint ID) public nonReentrant returns (bool) {
         address positionOwner = msg.sender;
 
