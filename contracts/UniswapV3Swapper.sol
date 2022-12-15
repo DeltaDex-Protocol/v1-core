@@ -82,6 +82,10 @@ contract V3Swapper is PairMaker {
     // @dev gets pool address of token pair on uniswap v3
     function getPool(address token0, address token1, uint24 fee) internal view returns (address) {
         address pool = v3Factory.getPool(token0, token1, fee);
+
+        console.log("Pool!!!!!!!!!!!!!!!!");
+        console.log(pool);
+
         require(pool != address(0), "DeltaDex: Pool doesn't exist on Uniswap V3, 85");
         return pool;
     }
