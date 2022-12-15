@@ -43,7 +43,7 @@ contract V3Swapper is PairMaker {
 
     // @dev gets price of token0 in terms of token1 
     function getPrice(address token0, address token1) public view returns (int) {
-        int price = int(estimateAmountOut(token0, 1e18, 500, token1));
+        int price = int(estimateAmountOut(token0, 1e18, 12, token1));
         return price;
     }
 
