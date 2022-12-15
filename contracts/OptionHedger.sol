@@ -7,7 +7,7 @@ import "contracts/dependencies/openzeppelin/IERC20.sol";
 
 import "contracts/libraries/BlackScholesModel.sol";
 import "contracts/libraries/HedgeMath.sol";
-import "contracts/hedging/UniswapV3Swapper.sol";
+import "contracts/UniswapV3Swapper.sol";
 
 import "hardhat/console.sol";
 
