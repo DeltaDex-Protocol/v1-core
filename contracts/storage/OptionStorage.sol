@@ -33,7 +33,6 @@ contract OptionStorage is PairStorage {
     }
 
     function BS_edit_params(address pair, address user, uint ID, BS.BS_params memory _params) external onlyTrusted returns (bool) {
-        // @dev nested struct params
         BS_Options[pair][user][ID].parameters.K = _params.parameters.K;
         BS_Options[pair][user][ID].parameters.T = _params.parameters.T;
         BS_Options[pair][user][ID].parameters.r = _params.parameters.r;
@@ -77,12 +76,6 @@ contract OptionStorage is PairStorage {
         return true;
     }
 
-    function BS_hedge(address pair, address user, uint ID, uint tokenA_balance, uint tokenB_balance, uint fees) external onlyTrusted {
-        BS_Options[pair][user][ID].tokenA_balance = tokenA_balance;
-        BS_Options[pair][user][ID].tokenB_balance = tokenB_balance;
-        BS_Options[pair][user][ID].fees = fees;
-    }
-
     function getPositionStatus(address pair, address user, uint ID) external view returns (bool) {
         return InitialAmounts[pair][user][ID].isClosed;
     }
@@ -90,7 +83,6 @@ contract OptionStorage is PairStorage {
     function BSgetHedgeAvailabilityParams(address pair, address user, uint ID) external view returns (uint perDay, uint lastHedgeTimeStamp) {
         perDay = BS_Options[pair][user][ID].perDay;
         lastHedgeTimeStamp = BS_Options[pair][user][ID].lastHedgeTimeStamp;
-
         return (perDay, lastHedgeTimeStamp);
     }
 
