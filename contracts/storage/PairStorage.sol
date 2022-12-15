@@ -110,7 +110,7 @@ contract PairStorage is StorageController {
         allPairs.push(pair);
     }
 
-    // @dev pools mapping
+    // @dev pools mapping | not used yet
     function setTokensInPair(address pair, address token0, address token1) public onlyTrusted {
         Pairs[pair].tokenA = token0;
         Pairs[pair].tokenB = token1;
