@@ -2,7 +2,11 @@
 var Addresses = require("./addresses.js");
 
 async function main() {
-  const signers = await ethers.getSigners();
+  const RPC = 'https://rpc.ankr.com/polygon_mumbai';
+  const provider = new ethers.providers.JsonRpcProvider(RPC);
+  const signer = new ethers.Wallet(process.env.PRIVATE_KEY_1, provider);
+
+  console.log("deployer: ", signer.address);
 
   let currentAddresses = Addresses.LoadAddresses();
 
@@ -44,7 +48,7 @@ async function main() {
 
   // ######## @dev deploying Black Scholes library ###########
   const BS = await ethers.getContractFactory("BS", {
-    signer: signers[0],
+    signer: signer,
     libraries: {
       Statistics: Statslib.address,
     },
@@ -61,7 +65,7 @@ async function main() {
 
   // ######## @dev deploying OptionStorage contract ###########
   const OptionStorage = await ethers.getContractFactory("OptionStorage", {
-    signer: signers[0],
+    signer: signer,
   });
   optionstorage = await OptionStorage.deploy();
   await optionstorage.deployed();
@@ -72,7 +76,7 @@ async function main() {
 
   // ######## @dev deploying BSOptionMaker contract ###########
   const BSOptionMaker = await ethers.getContractFactory("BSMOptionMaker", {
-    signer: signers[0],
+    signer: signer,
     libraries: {
       BS: BSlib.address,
       HedgeMath: HedgeMathlib.address,
@@ -89,7 +93,7 @@ async function main() {
 
   // ######## @dev deploying OptionMaker contract ###########
   const OptionMaker = await ethers.getContractFactory("OptionMaker", {
-    signer: signers[0],
+    signer: signer,
     libraries: {
       BS: BSlib.address,
       HedgeMath: HedgeMathlib.address,
@@ -113,41 +117,41 @@ async function main() {
   // sleep(20000);
   console.log("woke up 1");
 
-  let tx = await optionstorage.connect(signers[0]).setCoreAddr(optionmaker.address);
+  let tx = await optionstorage.connect(signer).setCoreAddr(optionmaker.address);
   await tx.wait();
 
   // sleep(20000);
   console.log("woke up 2");
 
-  let tx1 = await optionstorage.connect(signers[0]).setPeripheryAddr(bsoptionmaker.address);
+  let tx1 = await optionstorage.connect(signer).setPeripheryAddr(bsoptionmaker.address);
   await tx1.wait();
 
   // sleep(20000);
   console.log("woke up 3");
 
-  let tx2 = await optionstorage.connect(signers[0]).initializeAvailablePair(WETH, DAI);
+  let tx2 = await optionstorage.connect(signer).initializeAvailablePair(WETH, DAI);
   await tx2.wait();
 
   // sleep(20000);
   console.log("woke up 4");
 
   // ######## @dev setting addresses ###########
-  let tx3 = await bsoptionmaker.connect(signers[0]).setStorageAddr(optionstorage.address);
+  let tx3 = await bsoptionmaker.connect(signer).setStorageAddr(optionstorage.address);
   await tx3.wait();
 
   // sleep(20000);
   console.log("woke up 5");
 
-  let storageAddr = await bsoptionmaker.connect(signers[0]).getStorageAddr();
+  let storageAddr = await bsoptionmaker.connect(signer).getStorageAddr();
   console.log("storage addr: ", storageAddr);
 
-  let tx4 = await bsoptionmaker.connect(signers[0]).setCoreAddr(optionmaker.address);
+  let tx4 = await bsoptionmaker.connect(signer).setCoreAddr(optionmaker.address);
   await tx4.wait();
 
   // sleep(20000);
   console.log("woke up 6");
 
-  let coreAddr = await bsoptionmaker.connect(signers[0]).getCoreAddr();
+  let coreAddr = await bsoptionmaker.connect(signer).getCoreAddr();
   console.log("core addr: ", coreAddr);
 }
 

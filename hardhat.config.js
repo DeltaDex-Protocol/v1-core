@@ -14,24 +14,24 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: `https://matic-mumbai.chainstacklabs.com	`,
+        url: `https://matic-testnet-archive-rpc.bwarelabs.com`,
       },
     },
     rinkeby: {
       url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
       accounts: [
-        `${process.env.RINKEBY_PRIVATE_KEY_1}`,
-        `${process.env.RINKEBY_PRIVATE_KEY_2}`,
-        `${process.env.RINKEBY_PRIVATE_KEY_3}`,
+        `${process.env.PRIVATE_KEY_1}`,
+        `${process.env.PRIVATE_KEY_2}`,
+        `${process.env.PRIVATE_KEY_3}`,
       ],
       gasLimit: 25 * 10 ** 6,
     },
     mumbai: {
-      url: `https://matic-mumbai.chainstacklabs.com	`,
+      url: `https://matic-testnet-archive-rpc.bwarelabs.com`,
       accounts: [
-        `${process.env.RINKEBY_PRIVATE_KEY_1}`,
-        `${process.env.RINKEBY_PRIVATE_KEY_2}`,
-        `${process.env.RINKEBY_PRIVATE_KEY_3}`,
+        `${process.env.PRIVATE_KEY_1}`,
+        `${process.env.PRIVATE_KEY_2}`,
+        `${process.env.PRIVATE_KEY_3}`,
       ],
       gasLimit: 25 * 10 ** 6,
     },

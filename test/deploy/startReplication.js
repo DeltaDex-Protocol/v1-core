@@ -2,6 +2,7 @@ const { ethers } = require("hardhat");
 const { sluDependencies } = require("mathjs");
 
 var Addresses = require("./addresses.js");
+require("dotenv").config();
 
 async function main() {
   let addresses = Addresses.LoadAddresses();
@@ -11,7 +12,9 @@ async function main() {
   let MAKER = addresses.optionmaker;
   let STORAGE = addresses.optionstorage;
 
-  const signers = await ethers.getSigners();
+  const RPC = 'https://rpc.ankr.com/polygon_mumbai';
+  const provider = new ethers.providers.JsonRpcProvider(RPC);
+  const signer = new ethers.Wallet(process.env.PRIVATE_KEY_1, provider);
 
   const sDAI = await ethers.getContractAt("IERC20", DAI);
   const sWETH = await ethers.getContractAt("IERC20", WETH);
@@ -20,13 +23,15 @@ async function main() {
 
   const optionstorage = await ethers.getContractAt("OptionStorage", STORAGE);
 
-  const amountDAI = await sDAI.balanceOf(signers[0].address);
-  const amountWETH = await sDAI.balanceOf(signers[0].address);
+  const amountDAI = await sDAI.balanceOf(signer.address);
+  const amountWETH = await sDAI.balanceOf(signer.address);
 
 
-  await sDAI.connect(signers[0]).approve(optionmaker.address, amountDAI);
+  const tx1 = await sDAI.connect(signer).approve(optionmaker.address, amountDAI);
+  await tx1.wait();
   // sleep(20000);
-  await sWETH.connect(signers[0]).approve(optionmaker.address, amountWETH);
+  const tx2 = await sWETH.connect(signer).approve(optionmaker.address, amountWETH);
+  await tx2.wait();
   // sleep(20000);
 
 
@@ -68,7 +73,7 @@ async function main() {
   ];
 
   const tx = await optionmaker
-    .connect(signers[0])
+    .connect(signer)
     .BS_START_REPLICATION(input);
   // wait until the transaction is mined
   await tx.wait();
@@ -76,7 +81,7 @@ async function main() {
   const pair = await optionstorage.getPair(DAI, WETH);
   console.log("address of pair:", pair);
 
-  const position = await optionstorage.BS_Options(pair, signers[0].address, 0);
+  const position = await optionstorage.BS_Options(pair, signer.address, 0);
 
   console.log("position:", position);
 }

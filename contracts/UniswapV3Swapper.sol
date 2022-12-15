@@ -9,6 +9,8 @@ import "contracts/dependencies/uniswap-0.8/OracleLibrary.sol";
 
 import "contracts/PairMaker.sol";
 
+import "hardhat/console.sol";
+
 /// @title UniswapV3 Swapper Contract
 /// @author DeltaDex
 /// @notice This contract swaps token0 for token1
