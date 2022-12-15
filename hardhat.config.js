@@ -14,7 +14,7 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: `https://polygon-bor.publicnode.com`,
+        url: `https://rpc.ankr.com/polygon_mumbai`,
       },
     },
     rinkeby: {
@@ -27,7 +27,7 @@ module.exports = {
       gasLimit: 25 * 10 ** 6,
     },
     mumbai: {
-      url: `https://polygon-mumbai.g.alchemy.com/v2/${process.env.POLYGON_API_KEY}`,
+      url: `https://rpc.ankr.com/polygon_mumbai`,
       accounts: [
         `${process.env.RINKEBY_PRIVATE_KEY_1}`,
         `${process.env.RINKEBY_PRIVATE_KEY_2}`,

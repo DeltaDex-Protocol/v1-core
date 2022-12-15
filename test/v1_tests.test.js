@@ -4,12 +4,12 @@ const { BigNumber } = require("ethers");
 const { parseUnits } = require("ethers/lib/utils");
 const { ethers, network } = require("hardhat");
 
-const DAI = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
-const WETH = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619";
+const DAI = "0x924f46Fcd0d9F6fcA457A546c7F702A29E675eE5";
+const WETH = "0xB77C4E565a7368130AaC782fA548A817D2D2fd28";
 
 // DAI_daiWHALE must be an account, not contract
-const daiWHALE = "0x1a34edac6ab1cf8fe609f163d798c8644636c7dd";
-const wethWHALE = "0x0f0c716b007c289c0011e470cc7f14de4fe9fc80";
+const daiWHALE = "0x817998389F4E4d732129f2B37CBc165673da5b2E";
+const wethWHALE = "0x817998389F4E4d732129f2B37CBc165673da5b2E";
 
 var MAKER;
 

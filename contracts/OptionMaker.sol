@@ -22,7 +22,6 @@ contract OptionMaker is OptionHedger {
         addressBSMaker = address(_BSM_MAKER);
 
         BSM_MAKER = _BSM_MAKER;
-
         DAI = _DAI;
     }
 

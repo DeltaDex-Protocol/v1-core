@@ -41,8 +41,6 @@ contract V3Swapper is PairMaker {
 
     // @dev gets price of token0 in terms of token1 
     function getPrice(address token0, address token1) public view returns (int) {
-        address pool = getPool(token0, token1, 500);
-        require(pool != address(0), "Pool does not exist on Uniswap V3");
         int price = int(estimateAmountOut(token0, 1e18, 500, token1));
         return price;
     }
@@ -82,7 +80,7 @@ contract V3Swapper is PairMaker {
     // @dev gets pool address of token pair on uniswap v3
     function getPool(address token0, address token1, uint24 fee) internal view returns (address) {
         address pool = v3Factory.getPool(token0, token1, fee);
-        require(pool != address(0), "DeltaDex: Pool doesn't exist on Uniswap V3");
+        require(pool != address(0), "DeltaDex: Pool doesn't exist on Uniswap V3, 85");
         return pool;
     }
 }
