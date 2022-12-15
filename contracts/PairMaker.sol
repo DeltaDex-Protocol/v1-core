@@ -21,11 +21,7 @@ contract PairMaker is CoreController {
         pair = address(uint160(bytes20(salt)));
 
         storageContract.setPair(token0, token1, pair);
-
         storageContract.pushToAllPairs(pair);
-
-        // @dev Pools mapping
-        // storageContract.setTokensInPair(pair, token0, token1);
 
         return pair;
     }

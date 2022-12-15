@@ -12,15 +12,10 @@ contract PairStorage is StorageController {
     // @dev currently not in use
     struct Pair {
         address tokenA;
-        uint tokenA_balance;
+        // uint tokenA_balance;
 
         address tokenB;
-        uint tokenB_balance;
-    }
-
-    struct Fees {
-        uint tokenA;
-        uint tokenB;
+        // uint tokenB_balance;
     }
 
     // get address of Pair
@@ -32,9 +27,6 @@ contract PairStorage is StorageController {
     // @dev not used yet | pool data
     mapping(address => Pair) public Pairs;
 
-    // @dev not used yet - consider removing | pool fees
-    // mapping(address => Fees) public PairFees;
-
     // address TokenPair => array of addresses
     mapping(address => address[]) public PairUsers;
 
@@ -42,8 +34,7 @@ contract PairStorage is StorageController {
     mapping(address => address[]) public Positions;
 
     function initializeAvailablePair(address tokenA, address tokenB) public onlyDeployer {
-        address pair = ICORE(CORE).createPair(tokenA, tokenB);
-        allPairs.push(pair);
+        ICORE(CORE).createPair(tokenA, tokenB);
     }
  
     // @dev returns number of all pairs in contract

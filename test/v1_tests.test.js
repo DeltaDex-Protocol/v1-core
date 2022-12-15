@@ -491,6 +491,11 @@ describe("Multiple User Replication", () => {
     console.log("paid fee DAI", daiBalance);
   });
 
+  it("Should get number of pairs: ", async () => {
+    const pair = await optionstorage.numOfPairs();
+    console.log("number of pairs", pair);
+  });
+
 
   it("Close and withdraw position: ", async () => {
 
