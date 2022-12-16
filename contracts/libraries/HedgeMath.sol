@@ -77,6 +77,25 @@ library HedgeMath {
         return minimum;
     }
 
+    // @dev Check if realized slippage is < 1%
+
+    /// @notice checkSlippage
+    /// @dev Check if realized slippage is < maxSlippage
+    /// @param amountIn amountIn
+    /// @param amountOut amountOut
+    /// @param price price
+    /// @param maxSlippage maxSlippage
+    function checkSlippageAmount(int amountIn, int amountOut, int price, int maxSlippage) internal pure returns (bool) {
+        int amountOutOptimal = amountIn.mul(price);
+
+        // maxSlippage= abs(trueAmountOut / amountOutOptimal - 1)
+        int realizedSlippage = (amountOut.div(amountOutOptimal) - 1e18).abs();
+
+        require(realizedSlippage <= maxSlippage, "Slippage Exceeded Limit");
+
+        return true;
+    }
+
 
     /// @notice scaleTo
     /// @dev returns scaled value

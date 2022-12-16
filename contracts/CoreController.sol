@@ -16,6 +16,7 @@ contract CoreController is ReentrancyGuard {
     // periphery
     address public addressBSMaker;
 
+    // DAI address
     address public DAI;
 
     modifier onlyDeployer {

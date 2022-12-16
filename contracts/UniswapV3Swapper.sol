@@ -33,9 +33,6 @@ contract V3Swapper is PairMaker {
             deadline: block.timestamp,
             amountIn: amountIn,
             amountOutMinimum: 0,
-            // NOTE: In production, this value can be used to set the limit
-            // for the price the swap will push the pool to,
-            // which can help protect against price impact
             sqrtPriceLimitX96: 0
         });
         amountOut = swapRouter.exactInputSingle(params);
@@ -66,7 +63,6 @@ contract V3Swapper is PairMaker {
         );
 
         int56 tickCumulativesDelta = tickCumulatives[1] - tickCumulatives[0];
-
         int24 tick = int24(tickCumulativesDelta / int56(uint56(secondsAgo)));
 
         if (tickCumulativesDelta < 0 && (tickCumulativesDelta % int56(uint56(secondsAgo)) != 0)) tick--;

@@ -8,9 +8,8 @@ import "contracts/storage/OptionStorage.sol";
 /// @title PairMaker
 /// @author DeltaDex
 /// @notice Creates a token pair address
-/// @dev This token pair address is used to keep track of of protocol fees accrued in the token pair
 contract PairMaker is CoreController {
-    // @dev creates pair if it doesn't already exist
+
     function _createPair(address tokenA, address tokenB) internal returns (address pair) {
         require(tokenA != tokenB, "DeltaDex: IDENTICAL_ADDRESSES");
         (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);

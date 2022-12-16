@@ -15,7 +15,7 @@ contract PeripheryController {
     OptionMaker public core;
 
     address public immutable deployer;
-    address public DAI;
+    address public immutable DAI;
 
     mapping(address => address) public availablePairs;
 

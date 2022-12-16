@@ -33,22 +33,22 @@ contract PairStorage is StorageController {
     // address user => array of IDs
     mapping(address => address[]) public Positions;
 
-    function initializeAvailablePair(address tokenA, address tokenB) public onlyDeployer {
+    function initializeAvailablePair(address tokenA, address tokenB) external onlyDeployer {
         ICORE(CORE).createPair(tokenA, tokenB);
     }
  
     // @dev returns number of all pairs in contract
-    function numOfPairs() public view returns (uint) {
+    function numOfPairs() external view returns (uint) {
         return allPairs.length;
     }
 
     // @dev returns address pair by ID in contract
-    function returnPairAddress(uint ID) public view returns (address pair) {
+    function returnPairAddress(uint ID) external view returns (address pair) {
         return allPairs[ID];
     }
 
     // @dev returnPairData by pair address in contract
-    function returnPairData(address pair) public view returns (Pair memory) {
+    function returnPairData(address pair) external view returns (Pair memory) {
         return Pairs[pair];
     }
 
@@ -80,29 +80,29 @@ contract PairStorage is StorageController {
     }
 
     // @dev link address token pair to user address
-    function addPairtoUserPositions(address positionOwner, address pair) public onlyTrusted returns (bool) {
+    function addPairtoUserPositions(address positionOwner, address pair) external onlyTrusted returns (bool) {
         Positions[positionOwner].push(pair);
         return true;
     }
 
     // @dev add address user to token pair
-    function addPairUser(address positionOwner, address pair) public onlyTrusted returns (bool) {
+    function addPairUser(address positionOwner, address pair) external onlyTrusted returns (bool) {
         PairUsers[pair].push(positionOwner);
         return true;
     }
 
     // @dev populate mapping in both directions
-    function setPair(address token0, address token1, address pair) public onlyTrusted {
+    function setPair(address token0, address token1, address pair) external onlyTrusted {
         getPair[token0][token1] = pair;
         getPair[token1][token0] = pair;
     }
 
-    function pushToAllPairs(address pair) public onlyTrusted {
+    function pushToAllPairs(address pair) external onlyTrusted {
         allPairs.push(pair);
     }
 
     // @dev pools mapping | not used yet
-    function setTokensInPair(address pair, address token0, address token1) public onlyTrusted {
+    function setTokensInPair(address pair, address token0, address token1) external onlyTrusted {
         Pairs[pair].tokenA = token0;
         Pairs[pair].tokenB = token1;
     }

@@ -18,83 +18,66 @@ contract OptionHedger is V3Swapper {
     int public maxSlippage = 1e18;
 
     // @dev User 2 can read params, recalculate delta, and hedge the position
-    // @dev needs to be tested with manual input of delta
     function BS_HEDGE(address pair, address user, uint ID) public nonReentrant returns (uint payment) {
         bool isHedgeable = BSgetHedgeAvailability(pair, user, ID);
 
         require(isHedgeable == true, "Can't hedge option yet");
 
-        storageContract.BS_Options_updateTimeStamp(pair, user, ID, block.timestamp);
-
         (address tokenA, address tokenB) = storageContract.BS_tokenAddr(pair, user, ID);
 
         int price = int(getPrice(tokenB, tokenA));
 
-        // @dev get previous delta
-        int previousDelta = HedgeMath.calculatePreviousDelta(storageContract.BS_Options_tokenB_balance(pair, user, ID), storageContract.BS_Options_contractAmount(pair, user, ID));
+        int previousDelta = HedgeMath.calculatePreviousDelta(
+            storageContract.BS_Options_tokenB_balance(pair, user, ID), 
+            storageContract.BS_Options_contractAmount(pair, user, ID));
 
-        // @dev update T parameter. What if block.timestamp > expiry i.e. expired contract? (add require)
-        int newTparam = HedgeMath.convertSecondstoYear(storageContract.BS_Options_expiry(pair, user, ID) - block.timestamp);
+        int newTparam = HedgeMath.convertSecondstoYear(
+            storageContract.BS_Options_expiry(pair, user, ID) - block.timestamp);
 
-        // @dev update T in mapping
-        storageContract.BS_Options_updateT(pair, user, ID, newTparam);
-
-        // @dev calculate new delta
         int delta = BSgetDelta(price, pair, user, ID);
 
-        // @dev calculate delta of Delta
         int dDelta = delta - previousDelta;
 
         // @dev if delta is positive
         if (dDelta > 0) {
-            // buy amount dDelta (change in delta * price * amount of contracts = amount of tokenA to sell)
             uint amount_tokenA_Out = uint(dDelta.mul(price).mul(int(storageContract.BS_Options_contractAmount(pair, user, ID))));
 
             require(amount_tokenA_Out < storageContract.BS_Options_tokenA_balance(pair, user, ID), "Not enough balance to hedge, 108");
 
-            // swapping
             uint amountOut = _swapExactInputSingle(tokenA, tokenB, amount_tokenA_Out);
 
-            // there is a require in checkSlippageAmount
-            require(checkSlippageAmount(int(amount_tokenA_Out), price, int(amountOut)), "checkSlippageAmount failed");
+            require(HedgeMath.checkSlippageAmount(int(amount_tokenA_Out), int(amountOut), price, maxSlippage), "checkSlippageAmount failed");
 
-            // @dev update tokenA balance, only then do swap
             storageContract.BS_Options_subA_addB(pair, user, ID, amount_tokenA_Out, amountOut);
 
         } else {
-            // sell amount dDelta
-            // essentially, if the change in delta if negative, dDelta is amount of tokenB to sell
             uint amount_tokenB_Out = uint(dDelta.abs().div(price).mul(int(storageContract.BS_Options_contractAmount(pair, user, ID))));
 
             require(amount_tokenB_Out < storageContract.BS_Options_tokenB_balance(pair, user, ID), "Not enough balance to hedge");
 
-            // swapping
             uint amountOut = _swapExactInputSingle(tokenB, tokenA, amount_tokenB_Out);
 
-            // there is a require in checkSlippageAmount
-            require(checkSlippageAmount(int(amount_tokenB_Out), price, int(amountOut)), "checkSlippageAmount failed");
+            require(HedgeMath.checkSlippageAmount(int(amount_tokenB_Out), int(amountOut), price, maxSlippage), "checkSlippageAmount failed");
 
-            // @dev update tokenB balance, only then do swap
             storageContract.BS_Options_subB_addA(pair, user, ID, amount_tokenB_Out, amountOut);
         }
 
-        // @dev get amount to send to user 2 (there may be a way to gas optimize this..)
+        storageContract.BS_Options_updateTimeStamp(pair, user, ID, block.timestamp);
+        storageContract.BS_Options_updateT(pair, user, ID, newTparam);
+
         payment = storageContract.BS_Options_hedgeFee(pair, user, ID);
         storageContract.BS_Options_updateHedgeFee(pair, user, ID, payment);
 
-        // make payment
         IERC20(DAI).safeTransfer(msg.sender, payment);
         return payment;
     }
 
 
-    /// Black Scholes Model
+    /// @dev Check if the option is hedgeable
     function BSgetHedgeAvailability(address pair, address user, uint ID) public view returns (bool isHedgeable) {
-        // @dev calculate interval in seconds between hedges
         (uint perDay, uint lastHedgeTimeStamp) = storageContract.BSgetHedgeAvailabilityParams(pair, user, ID);
-        // @dev calculate interval in seconds between hedges
+
         uint interval = HedgeMath.getTimeStampInterval(perDay);
-        // @dev calculate time in seconds since last hedge
         uint current_interval = block.timestamp - lastHedgeTimeStamp;
 
         if (current_interval >= interval) {
@@ -102,20 +85,6 @@ contract OptionHedger is V3Swapper {
         } else {
             isHedgeable = false;
         }
-    }
-
-
-    // @dev this could be a library function
-    // @dev Check if realized slippage is < 1%
-    function checkSlippageAmount(int amountIn, int price, int amountOut) internal view returns (bool) {
-        int amountOutOptimal = amountIn.mul(price);
-
-        // maxSlippage= abs(trueAmountOut / amountOutOptimal - 1)
-        int realizedSlippage = (amountOut.div(amountOutOptimal) - 1e18).abs();
-
-        require(realizedSlippage <= maxSlippage, "slippage too high");
-
-        return true;
     }
 
 
