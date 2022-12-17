@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "./CoreController.sol";
+import "contracts/CoreController.sol";
 import "contracts/storage/OptionStorage.sol";
 
 /// @title PairMaker
