@@ -38,8 +38,8 @@ async function main() {
   // input to BS start replication
   let tokenA_balance = "5000";
   let amount = "1";
-  let fee = "400";
-  let perDay = "3000";
+  let fee = "4000";
+  let perDay = "1440";
   let K = "1400";
   let T = "0.3";
   let r = "0.15";

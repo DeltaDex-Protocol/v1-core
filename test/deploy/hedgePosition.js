@@ -25,8 +25,6 @@ async function main() {
     const optionstorage = await ethers.getContractAt("OptionStorage", STORAGE);
 
 
-
-
     const pair = await optionstorage.getPair(DAI, WETH);
 
     let user = await optionstorage.getUserAddressesInPair(pair);
