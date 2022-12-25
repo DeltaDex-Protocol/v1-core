@@ -65,8 +65,10 @@ contract V3Swapper is PairMaker {
         int56 tickCumulativesDelta = tickCumulatives[1] - tickCumulatives[0];
         int24 tick = int24(tickCumulativesDelta / int56(uint56(secondsAgo)));
 
-        if (tickCumulativesDelta < 0 && (tickCumulativesDelta % int56(uint56(secondsAgo)) != 0)) tick--;
-
+        if (tickCumulativesDelta < 0 && (tickCumulativesDelta % int56(uint56(secondsAgo)) != 0)) {
+            tick--;
+        }
+        
         amountOut = OracleLibrary.getQuoteAtTick(
             tick,
             amountIn,
