@@ -103,6 +103,5 @@ contract OptionHedger is V3Swapper {
         } else {
             delta = BS.delta_BS_PUT(input);
         }
-        return delta;
     }
 }

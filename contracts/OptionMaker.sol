@@ -27,13 +27,12 @@ contract OptionMaker is OptionHedger {
     }
 
     function transferIn(
-            address positionOwner,
-            address token,
-            uint amount) 
-        public onlyTrusted returns (bool success) {
+        address positionOwner,
+        address token,
+        uint amount
+    ) public onlyTrusted returns (bool) {
         IERC20(token).safeTransferFrom(positionOwner, address(this), amount);
-        success = true;
-        return success;
+        return true;
     }
 
     function createPair(address tokenA, address tokenB) external onlyTrusted returns (address pair) {
@@ -55,11 +54,11 @@ contract OptionMaker is OptionHedger {
     // @dev User 1 can update the params of their option replication for BS model call
     // DAI-ETH Call replication => fee is in DAI
     function BS_edit_params(
-            address pair, 
-            uint ID, 
-            uint feeAmount, 
-            BS.BS_params memory _params)
-        external returns (bool) {
+        address pair, 
+        uint ID, 
+        uint feeAmount, 
+        BS.BS_params memory _params
+    ) external returns (bool) {
         address positionOwner = msg.sender;
         storageContract.BS_edit_params(pair, positionOwner, ID, _params);
 
@@ -67,7 +66,6 @@ contract OptionMaker is OptionHedger {
             require(transferIn(positionOwner, DAI, feeAmount), "TF");
             storageContract.BS_addFee(pair, positionOwner, ID, feeAmount);
         }
-
         return true;
     }
 
@@ -87,17 +85,16 @@ contract OptionMaker is OptionHedger {
     }
 
     function withdraw_transfer(
-            address positionOwner, 
-            address tokenA, 
-            address tokenB, 
-            uint tokenA_balance, 
-            uint tokenB_balance, 
-            uint feeBalance) 
-        private returns (bool) {
+        address positionOwner, 
+        address tokenA, 
+        address tokenB, 
+        uint tokenA_balance, 
+        uint tokenB_balance, 
+        uint feeBalance
+    ) private returns (bool) {
         IERC20(tokenA).safeTransfer(positionOwner, tokenA_balance);
         IERC20(tokenB).safeTransfer(positionOwner, tokenB_balance);
         IERC20(DAI).safeTransfer(positionOwner, feeBalance);
-
         return true;
     }
 }
