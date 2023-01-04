@@ -19,11 +19,13 @@ contract PeripheryController {
 
     mapping(address => address) public availablePairs;
 
+
     modifier onlyDeployer {
         address sender = msg.sender;
         require(sender == deployer, "not deployer");
         _;
     }
+
 
     modifier onlyCore {
         address sender = msg.sender;
@@ -31,27 +33,33 @@ contract PeripheryController {
         _;
     }
 
+
     constructor(address _deployer, address _DAI) {
         DAI = _DAI;
         deployer = _deployer;
     }
+
 
     function initAvailablePairs(address tokenA, address tokenB) public onlyDeployer {
         availablePairs[tokenA] = tokenB;
         availablePairs[tokenB] = tokenA;
     }
 
+
     function setStorageAddr(OptionStorage _storage) public onlyDeployer {
         storageContract = _storage;
     }
+
 
     function setCoreAddr(OptionMaker _core) public onlyDeployer {
         core = _core;
     }
 
+
     function getStorageAddr() public view returns (address) {
         return address(storageContract);
     }
+
 
     function getCoreAddr() public view returns (address) {
         return address(core);

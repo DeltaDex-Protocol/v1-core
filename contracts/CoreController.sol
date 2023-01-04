@@ -19,11 +19,13 @@ contract CoreController is ReentrancyGuard {
     // DAI address
     address public DAI;
 
+
     modifier onlyDeployer {
         address msgSender = msg.sender;
         require(msgSender == deployer, "not owner");
         _;
     }
+
 
     modifier onlyTrusted {
         address sender = msg.sender;
@@ -31,9 +33,11 @@ contract CoreController is ReentrancyGuard {
         _;
     }
 
+
     function getStorageAddr() public view returns (address) {
         return address(storageContract);
     }
+
 
     function getPeripheryAddr() public view returns (address) {
         return (address(addressBSMaker));

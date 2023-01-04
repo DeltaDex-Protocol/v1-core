@@ -14,8 +14,10 @@ import "contracts/OptionHedger.sol";
 contract OptionMaker is OptionHedger {
     using SafeERC20 for IERC20;
 
+
     // periphery
     BSMOptionMaker public BSM_MAKER;
+
 
     constructor (OptionStorage _storage, BSMOptionMaker _BSM_MAKER, address _DAI) {
         deployer = msg.sender;
@@ -26,6 +28,7 @@ contract OptionMaker is OptionHedger {
         DAI = _DAI;
     }
 
+
     function transferIn(
         address positionOwner,
         address token,
@@ -35,13 +38,20 @@ contract OptionMaker is OptionHedger {
         return true;
     }
 
+
     function createPair(address tokenA, address tokenB) external onlyTrusted returns (address pair) {
         return _createPair(tokenA, tokenB);
     }
 
-    function swapExactInputSingle(address token0, address token1, uint amountIn) external nonReentrant onlyTrusted returns (uint amountOut) {
+
+    function swapExactInputSingle(
+        address token0,
+        address token1,
+        uint amountIn
+    ) external nonReentrant onlyTrusted returns (uint amountOut) {
         return _swapExactInputSingle(token0, token1, amountIn);
     }
+
 
     function BS_START_REPLICATION(BS.BS_params memory _params) external returns (address pair, uint amountOut) {
         address positionOwner = msg.sender;
@@ -50,6 +60,7 @@ contract OptionMaker is OptionHedger {
 
         return (pair, amountOut);
     }
+
 
     // @dev User 1 can update the params of their option replication for BS model call
     // DAI-ETH Call replication => fee is in DAI
@@ -69,6 +80,7 @@ contract OptionMaker is OptionHedger {
         return true;
     }
 
+
     function BS_Withdraw(address pair, uint ID) external nonReentrant returns (bool) {
         address positionOwner = msg.sender;
 
@@ -83,6 +95,7 @@ contract OptionMaker is OptionHedger {
 
         return true;
     }
+
 
     function withdraw_transfer(
         address positionOwner, 

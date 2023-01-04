@@ -18,6 +18,7 @@ contract BSMOptionMaker is PeripheryController {
 
     constructor (address _DAI) PeripheryController(msg.sender, _DAI) {}
 
+
     function BS_START_REPLICATION(BS.BS_params memory _params, address positionOwner) external onlyCore returns (address pair, uint amountOut) {
         require(checkTokenAddress(_params.tokenA, _params.tokenB), "token pair not listed");
 
@@ -64,6 +65,7 @@ contract BSMOptionMaker is PeripheryController {
         return (pair, amountOut);
     }
 
+
     // @dev internal function that writes params to mapping
     function BS_Write_Position_to_Mapping(
             address pair, 
@@ -84,6 +86,7 @@ contract BSMOptionMaker is PeripheryController {
         return true;
     }
 
+
     function checkTokenAddress(address tokenA, address tokenB) internal view returns (bool) {
         if (storageContract.getPair(tokenA, tokenB) != address(0)) {
             return true;
@@ -91,6 +94,7 @@ contract BSMOptionMaker is PeripheryController {
             return false;
         }
     }
+
 
     // @dev get delta of call if isCall is true, else get delta of put
     function getDelta(bool isCall, BS.BlackScholesInput memory input) internal pure returns (int delta) {

@@ -11,11 +11,13 @@ contract StorageController {
     // periphery
     address public BSM_MAKER;
 
+
     modifier onlyDeployer {
         address msgSender = msg.sender;
         require(msg.sender == deployer, "not deployer");
         _;
     }
+
 
     modifier onlyTrusted {
         address sender = msg.sender;
@@ -23,21 +25,26 @@ contract StorageController {
         _;
     }
 
+
     constructor () {
         deployer = msg.sender;
     }
+
 
     function setCoreAddr(address _CORE) public onlyDeployer {
         CORE = _CORE;
     }
 
+
     function setPeripheryAddr(address _BSM_MAKER) public onlyDeployer {
         BSM_MAKER = _BSM_MAKER;
     }
 
+
     function getCoreAddr() public view returns (address) {
         return address(CORE);
     }
+
 
     function getPeripheryAddr() public view returns (address) {
         return (address(BSM_MAKER));

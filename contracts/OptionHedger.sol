@@ -17,59 +17,136 @@ contract OptionHedger is V3Swapper {
 
     int public maxSlippage = 1e18;
 
-    // @dev User 2 can read params, recalculate delta, and hedge the position
-    function BS_HEDGE(address pair, address user, uint ID) public nonReentrant returns (uint payment) {
-        bool isHedgeable = BSgetHedgeAvailability(pair, user, ID);
 
-        require(isHedgeable == true, "Can't hedge option yet");
+    // @dev User 2 can read params, recalculate delta, and hedge the position
+    function BS_HEDGE(
+        address pair, 
+        address user, 
+        uint ID
+    ) public nonReentrant returns (uint payment) {
+        require(BSgetHedgeAvailability(pair, user, ID), "Can't hedge option yet");
+
+        int previousDelta = HedgeMath.calculatePreviousDelta(
+            storageContract.BS_Options_tokenB_balance(pair, user, ID), 
+            storageContract.BS_Options_contractAmount(pair, user, ID)
+        );
 
         (address tokenA, address tokenB) = storageContract.BS_tokenAddr(pair, user, ID);
 
         int price = getPrice(tokenB, tokenA);
-
-        int previousDelta = HedgeMath.calculatePreviousDelta(
-            storageContract.BS_Options_tokenB_balance(pair, user, ID), 
-            storageContract.BS_Options_contractAmount(pair, user, ID));
-
-        int newTparam = HedgeMath.convertSecondstoYear(
-            storageContract.BS_Options_expiry(pair, user, ID) - block.timestamp);
-
         int delta = BSgetDelta(price, pair, user, ID);
-
         int dDelta = delta - previousDelta;
 
-        // @dev if delta is positive
         if (dDelta > 0) {
-            uint amount_tokenA_Out = uint(dDelta.mul(price).mul(int(storageContract.BS_Options_contractAmount(pair, user, ID))));
-
-            require(amount_tokenA_Out < storageContract.BS_Options_tokenA_balance(pair, user, ID), "BAL");
-
-            uint amountOut = _swapExactInputSingle(tokenA, tokenB, amount_tokenA_Out);
-
-            require(HedgeMath.checkSlippageAmount(int(amount_tokenA_Out), int(amountOut), price, maxSlippage), "S");
-
-            storageContract.BS_Options_subA_addB(pair, user, ID, amount_tokenA_Out, amountOut);
+            require(tokenA_out(tokenA, tokenB, pair, user, ID, dDelta, price), "hedge failed");
 
         } else {
-            uint amount_tokenB_Out = uint(dDelta.abs().div(price).mul(int(storageContract.BS_Options_contractAmount(pair, user, ID))));
-
-            require(amount_tokenB_Out < storageContract.BS_Options_tokenB_balance(pair, user, ID), "BAL");
-
-            uint amountOut = _swapExactInputSingle(tokenB, tokenA, amount_tokenB_Out);
-
-            require(HedgeMath.checkSlippageAmount(int(amount_tokenB_Out), int(amountOut), price, maxSlippage), "S");
-
-            storageContract.BS_Options_subB_addA(pair, user, ID, amount_tokenB_Out, amountOut);
+            require(tokenB_out(tokenA, tokenB, pair, user, ID, dDelta, price), "hedge failed");
         }
 
-        storageContract.BS_Options_updateTimeStamp(pair, user, ID, block.timestamp);
-        storageContract.BS_Options_updateT(pair, user, ID, newTparam);
+        require(updateHedgeTime(pair, user, ID), "hedge time update failed");
 
         payment = storageContract.BS_Options_hedgeFee(pair, user, ID);
         storageContract.BS_Options_updateHedgeFee(pair, user, ID, payment);
-
         IERC20(DAI).safeTransfer(msg.sender, payment);
+
         return payment;
+    }
+
+
+    // @dev handle tokenA out
+    function tokenA_out(
+        address tokenA,
+        address tokenB,
+        address pair, 
+        address user, 
+        uint ID, 
+        int dDelta, 
+        int price
+    ) private returns (bool) {
+        uint amount_tokenA_Out = uint(dDelta.mul(price).mul(int(storageContract.BS_Options_contractAmount(pair, user, ID))));
+
+        require(amount_tokenA_Out < storageContract.BS_Options_tokenA_balance(pair, user, ID), "BAL");
+
+        uint amountOut = _swapExactInputSingle(tokenA, tokenB, amount_tokenA_Out);
+
+        require(
+            HedgeMath.checkSlippageAmount(
+                int(amount_tokenA_Out), 
+                int(amountOut), 
+                price, 
+                maxSlippage
+            ), "S"
+        );
+
+        storageContract.BS_Options_subA_addB(
+            pair, 
+            user,
+            ID, 
+            amount_tokenA_Out, 
+            amountOut
+        );
+
+        return true;
+    }
+
+
+    // @dev handle tokenB out
+    function tokenB_out(        
+        address tokenA,
+        address tokenB,
+        address pair, 
+        address user,
+        uint ID,
+        int dDelta,
+        int price
+    ) private returns (bool) {
+        uint amount_tokenB_Out = uint(dDelta.abs().div(price).mul(int(storageContract.BS_Options_contractAmount(pair, user, ID))));
+
+        require(amount_tokenB_Out < storageContract.BS_Options_tokenB_balance(pair, user, ID), "BAL");
+
+        uint amountOut = _swapExactInputSingle(tokenB, tokenA, amount_tokenB_Out);
+
+        require(HedgeMath.checkSlippageAmount(
+            int(amount_tokenB_Out), 
+            int(amountOut), 
+            price, 
+            maxSlippage
+            ), "S"
+        );
+
+        storageContract.BS_Options_subB_addA(
+            pair, 
+            user, 
+            ID, 
+            amount_tokenB_Out, 
+            amountOut
+        );
+
+        return true;
+    }
+
+
+    // @dev update the last hedge time of the option
+    function updateHedgeTime(address pair, address user, uint ID) private returns (bool) {
+        storageContract.BS_Options_updateTimeStamp(
+            pair, 
+            user,
+            ID, 
+            block.timestamp
+        );
+
+        int newTparam = HedgeMath.convertSecondstoYear(
+            storageContract.BS_Options_expiry(pair, user, ID) - block.timestamp
+        );
+
+        storageContract.BS_Options_updateT(
+            pair, 
+            user,
+            ID,
+            newTparam
+        );
+        return true;
     }
 
 
@@ -104,4 +181,5 @@ contract OptionHedger is V3Swapper {
             delta = BS.delta_BS_PUT(input);
         }
     }
+
 }

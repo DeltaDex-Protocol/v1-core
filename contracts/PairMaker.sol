@@ -24,4 +24,5 @@ contract PairMaker is CoreController {
 
         return pair;
     }
+    
 }

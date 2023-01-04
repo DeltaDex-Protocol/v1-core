@@ -22,7 +22,6 @@ contract OptionStorage is PairStorage {
     mapping(address => mapping(address => mapping(uint => BS.BS_params))) public BS_Options;
 
     /* WRITE FUNCTIONS */
-
     function write_BS_Options(address pair, address user, uint ID, BS.BS_params memory _params) external onlyTrusted returns (bool) {
         BS_Options[pair][user][ID] = _params;
         return true;
@@ -79,7 +78,6 @@ contract OptionStorage is PairStorage {
     }
 
     /* VIEW FUNCTIONS */
-
     function getPositionStatus(address pair, address user, uint ID) external view returns (bool) {
         return InitialAmounts[pair][user][ID].isClosed;
     }
