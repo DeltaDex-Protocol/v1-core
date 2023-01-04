@@ -85,7 +85,7 @@ library HedgeMath {
     /// @param amountOut amountOut
     /// @param price price
     /// @param maxSlippage maxSlippage
-    function checkSlippageAmount(int amountIn, int amountOut, int price, int maxSlippage) internal pure returns (bool) {
+    function checkSlippageAmount(int amountIn, int amountOut, int price, int maxSlippage) public pure returns (bool) {
         int amountOutOptimal = amountIn.mul(price);
 
         // maxSlippage= abs(trueAmountOut / amountOutOptimal - 1)

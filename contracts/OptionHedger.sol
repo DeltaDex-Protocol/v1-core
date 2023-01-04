@@ -25,7 +25,7 @@ contract OptionHedger is V3Swapper {
 
         (address tokenA, address tokenB) = storageContract.BS_tokenAddr(pair, user, ID);
 
-        int price = int(getPrice(tokenB, tokenA));
+        int price = getPrice(tokenB, tokenA);
 
         int previousDelta = HedgeMath.calculatePreviousDelta(
             storageContract.BS_Options_tokenB_balance(pair, user, ID), 
@@ -42,22 +42,22 @@ contract OptionHedger is V3Swapper {
         if (dDelta > 0) {
             uint amount_tokenA_Out = uint(dDelta.mul(price).mul(int(storageContract.BS_Options_contractAmount(pair, user, ID))));
 
-            require(amount_tokenA_Out < storageContract.BS_Options_tokenA_balance(pair, user, ID), "Not enough balance to hedge, 108");
+            require(amount_tokenA_Out < storageContract.BS_Options_tokenA_balance(pair, user, ID), "BAL");
 
             uint amountOut = _swapExactInputSingle(tokenA, tokenB, amount_tokenA_Out);
 
-            require(HedgeMath.checkSlippageAmount(int(amount_tokenA_Out), int(amountOut), price, maxSlippage), "checkSlippageAmount failed");
+            require(HedgeMath.checkSlippageAmount(int(amount_tokenA_Out), int(amountOut), price, maxSlippage), "S");
 
             storageContract.BS_Options_subA_addB(pair, user, ID, amount_tokenA_Out, amountOut);
 
         } else {
             uint amount_tokenB_Out = uint(dDelta.abs().div(price).mul(int(storageContract.BS_Options_contractAmount(pair, user, ID))));
 
-            require(amount_tokenB_Out < storageContract.BS_Options_tokenB_balance(pair, user, ID), "Not enough balance to hedge");
+            require(amount_tokenB_Out < storageContract.BS_Options_tokenB_balance(pair, user, ID), "BAL");
 
             uint amountOut = _swapExactInputSingle(tokenB, tokenA, amount_tokenB_Out);
 
-            require(HedgeMath.checkSlippageAmount(int(amount_tokenB_Out), int(amountOut), price, maxSlippage), "checkSlippageAmount failed");
+            require(HedgeMath.checkSlippageAmount(int(amount_tokenB_Out), int(amountOut), price, maxSlippage), "S");
 
             storageContract.BS_Options_subB_addA(pair, user, ID, amount_tokenB_Out, amountOut);
         }

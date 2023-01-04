@@ -82,7 +82,7 @@ contract V3Swapper is PairMaker {
         console.log("Pool!!!!!!!!!!!!!!!!");
         console.log(pool);
 
-        require(pool != address(0), "DeltaDex: Pool doesn't exist on Uniswap V3, 85");
+        require(pool != address(0), "DeltaDex: Pool doesn't exist on Uniswap V3");
         return pool;
     }
 }

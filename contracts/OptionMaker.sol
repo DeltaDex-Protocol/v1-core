@@ -64,7 +64,7 @@ contract OptionMaker is OptionHedger {
         storageContract.BS_edit_params(pair, positionOwner, ID, _params);
 
         if (feeAmount > 0) {
-            require(transferIn(positionOwner, DAI, feeAmount), "transfer failed");
+            require(transferIn(positionOwner, DAI, feeAmount), "TF");
             storageContract.BS_addFee(pair, positionOwner, ID, feeAmount);
         }
 
@@ -80,8 +80,8 @@ contract OptionMaker is OptionHedger {
         uint tokenB_balance,
         uint feeBalance) = storageContract.BS_getWithdrawParams(pair, positionOwner, ID);
 
-        require(storageContract.BS_withdraw(pair, positionOwner, ID), "Withdraw failed");
-        require(withdraw_transfer(positionOwner, tokenA, tokenB, tokenA_balance, tokenB_balance, feeBalance), "transfer failed");
+        require(storageContract.BS_withdraw(pair, positionOwner, ID), "WF");
+        require(withdraw_transfer(positionOwner, tokenA, tokenB, tokenA_balance, tokenB_balance, feeBalance), "TF");
 
         return true;
     }
