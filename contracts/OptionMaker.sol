@@ -14,10 +14,8 @@ import "contracts/OptionHedger.sol";
 contract OptionMaker is OptionHedger {
     using SafeERC20 for IERC20;
 
-
     // periphery
     BSMOptionMaker public BSM_MAKER;
-
 
     constructor (OptionStorage _storage, BSMOptionMaker _BSM_MAKER, address _DAI) {
         deployer = msg.sender;

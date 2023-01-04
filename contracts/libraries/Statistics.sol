@@ -36,7 +36,7 @@ library Statistics {
         }
         x = x.abs();
         int t = 1e36/ (1e18 + (p*x) / 1e18);
-        y = 1e18 - ((((((a5*t/1e18 + a4)*t/1e18) + a3)*t/1e18 + a2)*t/1e18 + a1)*t/1e18) * ((-x*x)/1e18).exp() / 1e18;
+        y = 1e18 - ((((((a5 * t / 1e18 + a4) * t / 1e18) + a3) * t / 1e18 + a2) * t / 1e18 + a1) * t / 1e18) * ((-x * x) / 1e18).exp() / 1e18;
 
         return sign*y; 
     }

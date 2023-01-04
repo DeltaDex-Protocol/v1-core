@@ -48,7 +48,6 @@ library BS {
         BSOptionParams parameters;
     }
 
-
     /// @notice d1 of Black Scholes
     /// @param S price
     /// @param K strike

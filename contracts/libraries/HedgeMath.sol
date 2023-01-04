@@ -53,8 +53,6 @@ library HedgeMath {
         previousDelta = int(tokenB_balance).div(int(amount));
     }
 
-    // @dev returns minimum required liquidity to replicate amount of call option contracts
-
     /// @notice minimum_Liquidity_Call
     /// @dev returns minimum required liquidity to replicate amount of call option contracts
     /// @param amount amount of contracts
@@ -66,7 +64,6 @@ library HedgeMath {
         return minimum;
     }
 
-
     /// @notice minimum_Liquidity_Put
     /// @dev returns minimum required liquidity to replicate amount of put option contracts
     /// @param amount amount of contracts
@@ -77,8 +74,6 @@ library HedgeMath {
         return minimum;
     }
 
-    // @dev Check if realized slippage is < 1%
-
     /// @notice checkSlippage
     /// @dev Check if realized slippage is < maxSlippage
     /// @param amountIn amountIn
@@ -87,15 +82,12 @@ library HedgeMath {
     /// @param maxSlippage maxSlippage
     function checkSlippageAmount(int amountIn, int amountOut, int price, int maxSlippage) public pure returns (bool) {
         int amountOutOptimal = amountIn.mul(price);
-
-        // maxSlippage= abs(trueAmountOut / amountOutOptimal - 1)
         int realizedSlippage = (amountOut.div(amountOutOptimal) - 1e18).abs();
 
         require(realizedSlippage <= maxSlippage, "Slippage Exceeded Limit");
 
         return true;
     }
-
 
     /// @notice scaleTo
     /// @dev returns scaled value
@@ -108,8 +100,7 @@ library HedgeMath {
             uint factor = baseTo - baseFrom;
             adjusted = value * 10**factor;
             //adjusted = value.mul(uint(10e18).pow(factor.mul(1e18)));
-        }
-        else {
+        } else {
             // scale down
             uint factor = baseFrom - baseTo;
             adjusted = value / 10**factor;
@@ -117,6 +108,5 @@ library HedgeMath {
         }
         return adjusted;
     }
-
 }
     
